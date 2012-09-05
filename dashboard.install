@@ -3,6 +3,7 @@
 /*
  * Implements hook_schema().
 */
+/*
 function dashboard_schema() {
 	$schema['dashboard_mugl'] = array(
 		'description' => 'The table for holding mugl file data.',
@@ -17,7 +18,7 @@ function dashboard_schema() {
 //				'not null' => TRUE,
 //				'default' => 'text',
 			),
-/*			'mugl_description' => array(
+			'mugl_description' => array(
 				'type' => 'varchar',
 				'default' => '',
 			),
@@ -29,10 +30,10 @@ function dashboard_schema() {
 				'type' => 'int',
 				'unsigned' => TRUE,
 			),
-*/
+
 		),
 		'primary key' => array('mgid'),
 	);
 
 	return $schema;
-}
+} */
