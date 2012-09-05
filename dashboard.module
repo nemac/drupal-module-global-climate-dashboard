@@ -11,10 +11,10 @@ function dashboard_block_info() {
 /*
  * $blocks[] Defines the blocks controlled by this module.
 */
-	$blocks['display_mugl'] = array(
-		'info' => t('Display mugl data'),
+	$blocks['multigraph_dashboard'] = array(
+		'info' => t('Multigraph Dashboard'),
 		'status' => TRUE,
-		'region' => 'sidebar_second',
+		'region' => 'content',
 		'weight' => 0,
 		'visibility' => 1,
 	);
@@ -27,9 +27,56 @@ function dashboard_block_info() {
 */
 function dashboard_block_configure($delta) {
 	$form = array();
-
+//	dsm('dashboard_block_configure hook run');
 	switch ($delta) {
-	case 'display_mugl':
+		case 'multigraph_dashboard':
+	/* Variables needed
+			$width
+			$height
+			$swf_path
+			$config_path
+		Set variables: variable_set($name, $value)
+		Get variables: variable_get($name, $default = NULL)
+		Set default (in block config form): '#default_value' => variable_get($name, $default = NULL),
+	*/
+			$form['width'] = array(
+				'#type' => 'textfield',
+				'#title' => 'Dashboard Width',
+				'#description' => 'Set the width for the multigraph dashboard.',
+				'#default_value' => variable_get('dashboard_width', '534'),
+			);
+
+			$form['height'] = array(
+				'#type' => 'textfield',
+				'#title' => 'Dashboard Height',
+				'#description' => 'Set the height for the multigraph dashboard.',
+				'#default_value' => variable_get('dashboard_height', '700'),
+			);
+
+			// Gets the default path to the .swf file
+			$swf_path = drupal_get_path('module', 'dashboard') . "/Dashboard.swf";
+		
+			$form['swf_path'] = array(
+				'#type' => 'textfield',
+				'#title' => 'Dashboard swf Path',
+				'#description' => 'Set the path to the flash swf file.',
+				'#default_value' => variable_get('dashboard_swf_path', $swf_path),
+			);
+
+			// The default config path for the mugl
+			$config_path = "http://dashboard.nemac.org/sites/default/files/versions/2012-07-06/data/dashboard.xml";
+
+			$form['config_path'] = array(	
+				'#type' => 'textfield',
+				'#title' => 'Dashboard Config Path',
+				'#description' => 'Set the config path for the mugl (multigraph xml file).',
+				'#default_value' => variable_get('dashboard_config_path', $config_path),
+			);
+			break;
+	}
+	return $form;
+}	
+
 /* using the filter
 		$form['mugl_data'] = array(
 			'#type' => 'textarea',
@@ -40,7 +87,6 @@ function dashboard_block_configure($delta) {
 			'#default_value' => '',
 		);
 			break;
-*/
 		// Selects previously entered value
 		$mugl_query = db_query("SELECT mugl FROM {dashboard_mugl} WHERE mgid = :mgid", array(':mgid' => 1) )->fetchField();
 		$form['mugl'] = array(
@@ -50,25 +96,32 @@ function dashboard_block_configure($delta) {
 			'#description' => 'Reference a mugl file using the "Full HTML and multigraph" input format.',
 			'#default_value' => $mugl_query,
 		);
-/*		$form['mugl_description'] = array(
+		$form['mugl_description'] = array(
 		);
 		$form['mugl_swf'] = array(
 		);
 		$form['mugl_nid'] = array(
 		);
-*/
+
 		break;
 	}
-	return $form;
-}
+	return $form; 
+} */
 
 /*
  * Implements hook_block_save().
 */
 function dashboard_block_save($delta ='', $edit = array()) {
 	switch ($delta) {
-		case 'display_mugl':
-		// dsm($edit);
+		case 'multigraph_dashboard':
+			dsm($edit);
+			// Setting the dashboard variables from form values
+			variable_set('dashboard_width', $edit['width']);
+			variable_set('dashboard_height', $edit['height']);
+			variable_set('dashboard_swf_path', $edit['swf_path']);
+			variable_set('dashboard_config_path', $edit['config_path']);
+
+/*
 			db_merge('dashboard_mugl')
 //			->key(array('mgid' => ??? )) // How do I get the mgid key?
 				->key(array('mgid' => 1 )) // Sets mgid to 1 to limit to one row
@@ -77,13 +130,14 @@ function dashboard_block_save($delta ='', $edit = array()) {
 					'mgid' => 1,
 					'mugl' => $edit['mugl']['value'],
 				))
-/* not necessary since the fields are the same
+ not necessary since the fields are the same
 				->updateFields(array(	
 					'mgid' => 1,
 					'mugl' => $edit['mugl']['value'],
 				))
-*/
+
 				->execute();
+*/
 			break;
 	}	
 }
@@ -94,9 +148,9 @@ function dashboard_block_save($delta ='', $edit = array()) {
 function dashboard_block_view($delta = '') {
 //			dsm('Hello world');
 	switch($delta) {
-		case 'display_mugl':
+		case 'multigraph_dashboard':
 			//dsm('Hello world');
-			$block['subject'] = 'Mugl Dashboard';
+//			$block['subject'] = 'Mugl Dashboard';
 			$block['content'] = dashboard_contents($delta);	
 //			$block['content'] = array('#markup' => 'This is where the Mugl Dashboard should go.');
 			return $block;
@@ -109,9 +163,60 @@ function dashboard_block_view($delta = '') {
 */
 function dashboard_contents($delta) {
 	switch($delta) {
-		case 'display_mugl':
+		case 'multigraph_dashboard':
 //			$mugl_query = db_query("SELECT mugl FROM {dashboard_mugl} WHERE mgid = :mgid", array(':mgid' => 1) )->fetchField();	
 //			return array('#markup' => $mugl_query);
+
+			// Initializing config variables
+			$swf_path_default = drupal_get_path('module', 'dashboard') . "Dashboard.swf"; 
+			$width = variable_get('dashboard_width', "534");
+			$height = variable_get('dashboard_height', "700");
+			$swf_path = variable_get('dashboard_swf_path', "$swf_path_default");
+			$config_path = variable_get('dashboard_config_path', "http://dashboard.nemac.org/sites/default/files/versions/2012-07-06/data/dashboard.xml");
+/*			$width = 534;
+			$height = 700;
+			$swf_path = drupal_get_path('module', 'dashboard') . "/Dashboard.swf";
+			$config_path = "http://dashboard.nemac.org/sites/default/files/versions/2012-07-06/data/dashboard.xml";
+*/
+			// Returning the object to be rendered inside block
+			return array('#markup' => <<<EOF
+<object
+  id="Global Climate Dashboard"
+  classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000"
+  width="$width"
+  height="$height"
+  codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0">
+    <param name="align" value="middle" />
+    <param name="allowScriptAccess" value="sameDomain" />
+    <param name="allowFullScreen" value="false" />
+    <param name="quality" value="best" />
+    <param name="scale" value="exactfit" />
+    <param name="wmode" value="opaque" />
+    <param name="bgcolor" value="#ffffff" />
+    <param name="src" value="$swf_path" />
+    <param name="flashvars" value="config=$config_path" />
+    <param name="name" value="Global Climate Dashboard" />
+<embed
+  id="Global Climate Dashboard"
+  type="application/x-shockwave-flash"
+  width="$width"
+  height="$height"
+  src="$swf_path"
+  name="Global Climate Dashboard"
+  bgcolor="#ffffff"
+  wmode="opaque"
+  scale="exactfit"
+  quality="best"
+  flashvars="config=$config_path"
+  allowfullscreen="false"
+  allowscriptaccess="sameDomain"
+  align="middle">
+</embed>
+</object>
+EOF
+);
+
+/*			// Returning the object to be rendered inside block
 			return array('#markup' => <<<EOF
 <object
   id="Global Climate Dashboard"
@@ -147,7 +252,7 @@ function dashboard_contents($delta) {
 </embed>
 </object>
 EOF
-);
+); */
 			break;
 	}
 }
