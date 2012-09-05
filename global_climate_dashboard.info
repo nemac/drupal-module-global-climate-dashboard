@@ -1,4 +1,4 @@
-name = Dashboard 
+name = Global Climate Dashboard 
 description = Testing out renderable arrays and block configuration.
 core = 7.x
-package = Multigraph
+package = UNCA/NEMAC

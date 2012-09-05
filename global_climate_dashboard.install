@@ -1,0 +1,21 @@
+<?php
+
+/*
+ * Implements hook_uninstall
+ */
+function global_climate_dashboard_install() {
+  variable_set('global_climate_dashboard_width',       "524");
+  variable_set('global_climate_dashboard_height',      "700");
+  variable_set('global_climate_dashboard_swf_path',    drupal_get_path('module', 'global_climate_dashboard') . "/Dashboard.swf");
+  variable_set('global_climate_dashboard_config_path', "http://dashboard.nemac.org/proxy/flat-dashboard.xml");
+}
+
+/*
+ * Implements hook_uninstall
+ */
+function global_climate_dashboard_uninstall() {
+  variable_del('global_climate_dashboard_width');
+  variable_del('global_climate_dashboard_height');
+  variable_del('global_climate_dashboard_swf_path');
+  variable_del('global_climate_dashboard_config_path');
+}

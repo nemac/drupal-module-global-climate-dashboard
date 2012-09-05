@@ -1,0 +1,151 @@
+<?php
+  /*
+   * The global_climate_dashboard module tests out setting up a block using the block API and
+   * rendering some content in the block using a renderable array.
+   */
+
+  /*
+   * Implements hook_block_info().
+   */
+function global_climate_dashboard_block_info() {
+  /*
+   * $blocks[] Defines the blocks controlled by this module.
+   */
+  $blocks['global_climate_dashboard'] = array(
+					  'info' => t('Global Climate Dashboard'),
+					  );
+	
+  return $blocks;
+  }
+
+/*
+ * Implements hook_block_configure().
+ */
+function global_climate_dashboard_block_configure($delta) {
+  $form = array();
+  switch ($delta) {
+  case 'global_climate_dashboard':
+    /* Variables needed
+       $width
+       $height
+       $swf_path
+       $config_path
+       Set variables: variable_set($name, $value)
+       Get variables: variable_get($name, $default = NULL)
+       Set default (in block config form): '#default_value' => variable_get($name, $default = NULL),
+    */
+    $form['width'] = array(
+			   '#type' => 'textfield',
+			   '#title' => 'Dashboard Width',
+			   '#description' => 'The pixel width for the dashboard',
+			   '#default_value' => variable_get('global_climate_dashboard_width'),
+			   );
+
+    $form['height'] = array(
+			    '#type' => 'textfield',
+			    '#title' => 'Dashboard Height',
+			    '#description' => 'The pixel height for the dashboard',
+			    '#default_value' => variable_get('global_climate_dashboard_height'),
+			    );
+
+    $form['swf_path'] = array(
+			      '#type' => 'textfield',
+			      '#title' => 'Dashboard swf Path',
+			      '#description' => 'The path to the dashboard flash swf file; if this it not an absolute url, it is interpreted relative to the Drupal installation directory',
+			      '#default_value' => variable_get('global_climate_dashboard_swf_path'),
+			      );
+
+    $form['config_path'] = array(
+				 '#type' => 'textfield',
+				 '#title' => 'Dashboard Config Path',
+				 '#description' => 'The URL of the dashboard xmlconfiguration file to load',
+				 '#default_value' => variable_get('global_climate_dashboard_config_path'),
+				 );
+    break;
+  }
+  return $form;
+}	
+
+/*
+ * Implements hook_block_save().
+ */
+function global_climate_dashboard_block_save($delta ='', $edit = array()) {
+  switch ($delta) {
+  case 'global_climate_dashboard':
+    // Setting the dashboard variables from form values
+    variable_set('global_climate_dashboard_width', $edit['width']);
+    variable_set('global_climate_dashboard_height', $edit['height']);
+    variable_set('global_climate_dashboard_swf_path', $edit['swf_path']);
+    variable_set('global_climate_dashboard_config_path', $edit['config_path']);
+    break;
+  }	
+}
+
+/*
+ * Implements hook_block_view().
+ */
+function global_climate_dashboard_block_view($delta = '') {
+  switch($delta) {
+  case 'global_climate_dashboard':
+    $block['content'] = global_climate_dashboard_contents($delta);	
+    return $block;
+    break;
+  }
+}
+
+/*
+ * Custom function to render the 'mugl' field.
+ */
+function global_climate_dashboard_contents($delta) {
+  switch($delta) {
+  case 'global_climate_dashboard':
+    // Initializing config variables
+    $width = variable_get('global_climate_dashboard_width');
+    $height = variable_get('global_climate_dashboard_height');
+    $swf_path = variable_get('global_climate_dashboard_swf_path');
+    if (strpos($swf_path, '://') === false) {
+      // if the swf_path is not an absolute url, prepend the drupal base path to it:
+      $swf_path = base_path() . $swf_path;
+    }
+    $config_path = variable_get('global_climate_dashboard_config_path');
+    // Returning the object to be rendered inside block
+    return array('#markup' => <<<EOF
+<object
+ id="Global Climate Dashboard"
+ classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000"
+ width="$width"
+ height="$height"
+ codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0">
+  <param name="align" value="middle" />
+  <param name="allowScriptAccess" value="sameDomain" />
+  <param name="allowFullScreen" value="false" />
+  <param name="quality" value="best" />
+  <param name="scale" value="exactfit" />
+  <param name="wmode" value="opaque" />
+  <param name="bgcolor" value="#ffffff" />
+  <param name="src" value="$swf_path" />
+  <param name="flashvars" value="config=$config_path" />
+  <param name="name" value="Global Climate Dashboard" />
+  <embed
+    id="Global Climate Dashboard"
+    type="application/x-shockwave-flash"
+    width="$width"
+    height="$height"
+    src="$swf_path"
+    name="Global Climate Dashboard"
+    bgcolor="#ffffff"
+    wmode="opaque"
+    scale="exactfit"
+    quality="best"
+    flashvars="config=$config_path"
+    allowfullscreen="false"
+    allowscriptaccess="sameDomain"
+    align="middle">
+  </embed>
+</object>
+EOF
+		 );
+
+    break;
+  }
+}
