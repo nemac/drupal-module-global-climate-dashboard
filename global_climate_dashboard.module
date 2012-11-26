@@ -4,6 +4,13 @@
    * rendering some content in the block using a renderable array.
    */
 
+/**
+ * Implement hook_init to keep our global CSS at the ready.
+ */
+function global_climate_dashboard_init() {
+  drupal_add_css(drupal_get_path('module', 'global_climate_dashboard') . "/global_climate_dashboard.css");
+}
+
   /*
    * Implements hook_block_info().
    */
@@ -111,7 +118,8 @@ function global_climate_dashboard_contents($delta) {
     // Returning the object to be rendered inside block
     return array('#markup' => <<<EOF
 <object
- id="Global Climate Dashboard"
+ class="global_climate_dashboard"
+ id="Global_Climate_Dashboard"
  classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000"
  width="$width"
  height="$height"
@@ -120,14 +128,15 @@ function global_climate_dashboard_contents($delta) {
   <param name="allowScriptAccess" value="sameDomain" />
   <param name="allowFullScreen" value="false" />
   <param name="quality" value="best" />
-  <param name="scale" value="exactfit" />
+  <param name="scale" value="noscale" />
   <param name="wmode" value="opaque" />
   <param name="bgcolor" value="#ffffff" />
   <param name="src" value="$swf_path" />
   <param name="flashvars" value="config=$config_path" />
   <param name="name" value="Global Climate Dashboard" />
   <embed
-    id="Global Climate Dashboard"
+    id="Global_Climate_Dashboard"
+    class="global_climate_dashboard"
     type="application/x-shockwave-flash"
     width="$width"
     height="$height"
@@ -135,7 +144,7 @@ function global_climate_dashboard_contents($delta) {
     name="Global Climate Dashboard"
     bgcolor="#ffffff"
     wmode="opaque"
-    scale="exactfit"
+    scale="noscale"
     quality="best"
     flashvars="config=$config_path"
     allowfullscreen="false"

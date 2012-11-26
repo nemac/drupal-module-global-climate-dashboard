@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?> 
+
+<!--
+
+This is the ant build file for the Global Climate Dashboard Drupal Module.
+
+You do not normally need to use this build file; the project comes with a
+compiled and production-ready copy of the Global Climate Dashboard flash
+app in the "flash-app" subdirectory.
+
+You can, however, use this ant build file to recompile the flash app from
+source (located in the submodules/flash-global-climate-dashboard directory)
+and replace the copy in the flash-app directory with the newly compiled
+copy.
+
+Before running this ant build file, you should make sure that the source
+code to the Global Climate Dashboard flash app is checked out into
+the submodules/flash-global-climate-dashboard directory; you can do that
+by giving the command:
+
+  git submodule update ==init ==recursive
+
+where each '=' is really a '-', but the command is represented with '='
+here (because a sequence of two '-' chars isnt' allowed in comments
+in an ant build (or any XML) file).
+
+Then, to run this build file, make sure that the FLEX_HOME environment
+variable is set to the root of a Flex SDK installation, and then just
+run "ant".  For example:
+
+    FLEX_HOME=/usr/local/src/flex/flex_sdk_4.1.0.16076 ant
+
+-->
+
+<project name="DashboardModule" basedir="." default="build"> 
+  <property environment="env"/>
+  <property name="FLEX_HOME" value="${env.FLEX_HOME}"/>
+  <property name="mxmlc.exe" value="${FLEX_HOME}/bin/mxmlc"/>
+  <target name="checkenv">
+    <fail unless="env.FLEX_HOME">FLEX_HOME not set
+
+    The FLEX_HOME environment variable must be set to the root of a
+    Flex SDK installation (directory containing "bin", "lib", ...)
+
+    </fail>
+  </target>
+
+  <target name="build" depends="build-submodule,update"/>
+
+  <target name="build-submodule" depends="checkenv">
+    <ant dir="submodules/flash-global-climate-dashboard" target="clean"/>
+    <ant dir="submodules/flash-global-climate-dashboard" target="build"/>
+  </target>
+
+  <target name="update">
+    <copy includeemptydirs="false" todir="flash-app" overwrite="true">
+      <fileset dir="submodules/flash-global-climate-dashboard/html" includes="**/*"/>
+    </copy>
+  </target>
+
+</project>
