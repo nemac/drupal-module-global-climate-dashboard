@@ -5,10 +5,11 @@
    */
 
 /**
- * Implement hook_init to keep our global CSS at the ready.
+ * Implements hook_init
  */
 function global_climate_dashboard_init() {
   drupal_add_css(drupal_get_path('module', 'global_climate_dashboard') . "/global_climate_dashboard.css");
+  drupal_add_js(drupal_get_path('module', 'global_climate_dashboard') . "/swfobject.js");
 }
 
   /*
@@ -100,6 +101,7 @@ function global_climate_dashboard_block_view($delta = '') {
   }
 }
 
+
 /*
  * Custom function to render the 'mugl' field.
  */
@@ -110,48 +112,68 @@ function global_climate_dashboard_contents($delta) {
     $width = variable_get('global_climate_dashboard_width');
     $height = variable_get('global_climate_dashboard_height');
     $swf_path = variable_get('global_climate_dashboard_swf_path');
+    $ppi_swf_path = drupal_get_path('module', 'global_climate_dashboard') . "/playerProductInstall.swf";
+    $screenshot_path = drupal_get_path('module', 'global_climate_dashboard') . "/DashboardScreenShot.png";
     if (strpos($swf_path, '://') === false) {
       // if the swf_path is not an absolute url, prepend the drupal base path to it:
       $swf_path = base_path() . $swf_path;
     }
     $config_path = variable_get('global_climate_dashboard_config_path');
+
     // Returning the object to be rendered inside block
     return array('#markup' => <<<EOF
-<object
- class="global_climate_dashboard"
- id="Global_Climate_Dashboard"
- classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000"
- width="$width"
- height="$height"
- codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0">
-  <param name="align" value="middle" />
-  <param name="allowScriptAccess" value="sameDomain" />
-  <param name="allowFullScreen" value="false" />
-  <param name="quality" value="best" />
-  <param name="scale" value="noscale" />
-  <param name="wmode" value="opaque" />
-  <param name="bgcolor" value="#ffffff" />
-  <param name="src" value="$swf_path" />
-  <param name="flashvars" value="config=$config_path" />
-  <param name="name" value="Global Climate Dashboard" />
-  <embed
-    id="Global_Climate_Dashboard"
-    class="global_climate_dashboard"
-    type="application/x-shockwave-flash"
-    width="$width"
-    height="$height"
-    src="$swf_path"
-    name="Global Climate Dashboard"
-    bgcolor="#ffffff"
-    wmode="opaque"
-    scale="noscale"
-    quality="best"
-    flashvars="config=$config_path"
-    allowfullscreen="false"
-    allowscriptaccess="sameDomain"
-    align="middle">
-  </embed>
-</object>
+        <div id="globalClimateDashboard" class="global_climate_dashboard"><img width="940" height="570" src="$screenshot_path"></div>
+       	<noscript>
+            <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="$width" height="$height" id="Dashboard">
+                <param name="movie" value="$swf_path" />
+                <param name="quality" value="high" />
+                <param name="bgcolor" value="#ffffff" />
+                <param name="allowScriptAccess" value="sameDomain" />
+                <param name="allowFullScreen" value="true" />
+                <!--[if !IE]>-->
+                <object type="application/x-shockwave-flash" data="$swf_path" width="$width" height="$height">
+                    <param name="quality" value="high" />
+                    <param name="bgcolor" value="#ffffff" />
+                    <param name="allowScriptAccess" value="sameDomain" />
+                    <param name="allowFullScreen" value="true" />
+                <!--<![endif]-->
+                <!--[if gte IE 6]>-->
+                	<p> 
+                		Either scripts and active content are not permitted to run or Adobe Flash Player version
+                		10.0.0 or greater is not installed.
+                	</p>
+                <!--<![endif]-->
+                    <a href="http://www.adobe.com/go/getflashplayer">
+                        <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash Player" />
+                    </a>
+                <!--[if !IE]>-->
+                </object>
+                <!--<![endif]-->
+            </object>
+	    </noscript>		
+        <script type="text/javascript">
+            <!-- For version detection, set to min. required Flash Player version, or 0 (or 0.0.0), for no version detection. --> 
+            var swfVersionStr = "10.0.0";
+            <!-- To use express install, set to playerProductInstall.swf, otherwise the empty string. -->
+            var xiSwfUrlStr = "$ppi_swf_path";
+            var flashvars = { config : "$config_path" };
+            var params = {};
+            params.quality = "high";
+            params.bgcolor = "#ffffff";
+            params.allowscriptaccess = "sameDomain";
+            params.allowfullscreen = "true";
+            var attributes = {};
+            attributes.id = "Dashboard";
+            attributes.name = "Dashboard";
+            attributes.align = "middle";
+            swfobject.embedSWF(
+                "$swf_path", "globalClimateDashboard", 
+                "$width", "$height", 
+                swfVersionStr, xiSwfUrlStr, 
+                flashvars, params, attributes);
+			<!-- JavaScript enabled so display the globalClimateDashboard div in case it is not replaced with a swf object. -->
+			swfobject.createCSS("#globalClimateDashboard", "display:block;text-align:left;");
+        </script>
 EOF
 		 );
 

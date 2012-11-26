@@ -1,6 +1,3 @@
-object.global_climate_dashboard {
-  margin-top: 10px;
-}
-embed.global_climate_dashboard {
+div.block-global-climate-dashboard div.content {
   margin-top: 10px;
 }
