@@ -54,7 +54,8 @@ run "ant".  For example:
 
   <target name="update">
     <copy includeemptydirs="false" todir="flash-app" overwrite="true">
-      <fileset dir="submodules/flash-global-climate-dashboard/html" includes="**/*"/>
+      <fileset dir="submodules/flash-global-climate-dashboard/html" includes="**/*"
+               excludes="index.html swfobject.js"/>
     </copy>
   </target>
 
