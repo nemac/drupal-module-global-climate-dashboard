@@ -34,7 +34,7 @@ run "ant".  For example:
 
 <project name="DashboardModule" basedir="." default="build"> 
 
-  <target name="build" depends="build-html5,build-flash" />
+  <target name="build" depends="build-html5" />
 
   <!-- html5 stuff -->
   <target name="build-html5" depends="build-html5-submodule,update-html5"/>
@@ -44,41 +44,14 @@ run "ant".  For example:
   </target>
 
   <target name="update-html5">
+    <delete includeemptydirs="true">
+      <fileset dir="html5-app" includes="**/*" />
+    </delete>
     <copy includeemptydirs="false" todir="html5-app" overwrite="true">
       <fileset dir="submodules/html5-global-climate-dashboard/build" includes="**/*"
                excludes="dashboard.js"/>
     </copy>
   </target>
   <!-- end html5 stuff -->
-
-  <!-- flash stuff -->
-  <property environment="env"/>
-  <property name="FLEX_HOME" value="${env.FLEX_HOME}"/>
-  <property name="mxmlc.exe" value="${FLEX_HOME}/bin/mxmlc"/>
-
-  <target name="checkenv-flash">
-    <fail unless="env.FLEX_HOME">FLEX_HOME not set
-
-    The FLEX_HOME environment variable must be set to the root of a
-    Flex SDK installation (directory containing "bin", "lib", ...)
-
-    </fail>
-  </target>
-
-  <target name="build-flash" depends="build-flash-submodule,update-flash"/>
-
-  <target name="build-flash-submodule" depends="checkenv-flash">
-    <ant dir="submodules/flash-global-climate-dashboard" target="clean"/>
-    <ant dir="submodules/flash-global-climate-dashboard" target="build"/>
-  </target>
-
-  <target name="update-flash">
-    <copy includeemptydirs="false" todir="flash-app" overwrite="true">
-      <fileset dir="submodules/flash-global-climate-dashboard/html" includes="**/*"
-               excludes="index.html swfobject.js"/>
-    </copy>
-  </target>
-  <!-- end flash stuff -->
-
 
 </project>
