@@ -21,10 +21,10 @@ function global_climate_dashboard_block_info() {
    */
   $blocks['global_climate_dashboard'] = array(
 					  'info' => t('Global Climate Dashboard'),
-					  );
+  );
 	
   return $blocks;
-  }
+}
 
 /*
  * Implements hook_block_configure().

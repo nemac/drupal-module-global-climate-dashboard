@@ -1,4 +1,5 @@
 name = Global Climate Dashboard 
-description = Testing out renderable arrays and block configuration.
+description = Defines a 'Global Climate Dashboard' block
 core = 7.x
 package = UNCA/NEMAC
+version = "7.x-1.1"
