@@ -164,3 +164,87 @@ EOF
     break;
   }
 }
+
+function global_climate_dashboard_filter_info() {
+  return array(
+    'gcd_multigraph' => array(
+      'title'       	 => 'Replace <multigraph> tag markup with interactive Multigraphs.',
+      'description' 	 => '',
+      'prepare callback' => 'global_climate_dashboard_multigraph_filter_prepare', 
+      'process callback' => 'global_climate_dashboard_multigraph_filter_process',
+      'cache' 		 => FALSE,
+      'tips'  		 => 'global_climate_dashboard_multigraph_filter_tips',
+      'weight' 		 => -100, // A default weight for the filter in new text formats
+      //
+      // 'settings callback' => The name of a function that returns configuration form elements
+      //                        for the filter. See hook_filter_FILTER_settings() for details.
+      // 'default settings' =>  An associative array containing default settings for the filter,
+      //                        to be applied when the filter has not been configured yet.
+    )
+  );     
+}
+
+function global_climate_dashboard_multigraph_filter_prepare($text, $filter, $format, $langcode, $cache, $cache_id) {
+  // Escape <multigraph ... />
+  $text = preg_replace('|<multigraph\s(.*)/>|', "[multigraph]$1[/multigraph]", $text);
+  return $text;
+}
+
+function global_climate_dashboard_multigraph_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
+  drupal_add_js(drupal_get_path('module', 'global_climate_dashboard') . "/html5-app/multigraph-min.js");
+  $text = preg_replace_callback('|\[multigraph\](.+?)\[/multigraph\]|', '_multigraph_edit_tag', $text);
+  return $text;
+}
+
+function global_climate_dashboard_multigraph_filter_tips($filter, $format, $long) {
+  if ($long) {
+    return t('&lt;<multigraph ... /&gt; tags turn into interactive Multigraph graphs.');
+  } else {
+    return t('&lt;<multigraph ... /&gt; tags turn into interactive Multigraph graphs.');
+  }
+}
+
+function _multigraph_edit_tag( $matches )
+{
+  global $base_url, $base_path;
+
+  $width  = 500;
+  $height = 300;
+  $mugl   = FALSE;
+  $js     = FALSE;
+  
+  $assignments = preg_split('/\s+/', trim($matches[1]));
+  $args = array();
+  for ($i=0; $i<count($assignments); ++$i) {
+    list($var,$val) = preg_split('/=/', $assignments[$i]);
+    $val = preg_replace('/^"(.*)"$/', "$1", $val);
+    $args[$var] = $val;
+  }
+  if (array_key_exists('width',       $args))  { $width        = check_plain( $args['width'] );       }
+  if (array_key_exists('height',      $args))  { $height       = check_plain( $args['height'] );      }
+  if (array_key_exists('mugl',        $args))  { $mugl         = check_plain( $args['mugl'] );        }
+  $flash_mugl = '';
+  if (array_key_exists('flash_mugl',  $args))  { $flash_mugl   = check_plain( $args['flash_mugl'] );  }
+
+  $id = sprintf("multigraph-%010d", mt_rand());
+
+  return <<<EOF
+<div id="$id"/>
+<script type="text/javascript">
+    window.multigraph.jQuery(document).ready(function() {
+      window.multigraph.jQuery('#$id').multigraph({
+        width : $width,
+        height: $height,
+        mugl: '$mugl',
+        flash_mugl: '$flash_mugl',
+        error: function(e) { 
+            console.log(e);
+            throw e;
+        }
+      });
+    });
+</script>
+EOF
+;
+
+}
