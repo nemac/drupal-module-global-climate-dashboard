@@ -186,21 +186,21 @@ function global_climate_dashboard_filter_info() {
 
 function global_climate_dashboard_multigraph_filter_prepare($text, $filter, $format, $langcode, $cache, $cache_id) {
   // Escape <multigraph ... />
-  $text = preg_replace('|<multigraph\s(.*)/>|', "[multigraph]$1[/multigraph]", $text);
+  // $text = preg_replace('|<multigraph\s(.*)/>|', "[multigraph]$1[/multigraph]", $text);
   return $text;
 }
 
 function global_climate_dashboard_multigraph_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
   drupal_add_js(drupal_get_path('module', 'global_climate_dashboard') . "/html5-app/multigraph-min.js");
-  $text = preg_replace_callback('|\[multigraph\](.+?)\[/multigraph\]|', '_multigraph_edit_tag', $text);
+  $text = preg_replace_callback('|\[\s*multigraph(.+?)\s*\]|', '_multigraph_edit_tag', $text);
   return $text;
 }
 
 function global_climate_dashboard_multigraph_filter_tips($filter, $format, $long) {
   if ($long) {
-    return t('&lt;<multigraph ... /&gt; tags turn into interactive Multigraph graphs.');
+    return t('[multigraph ... ] markup turns into interactive Multigraph.');
   } else {
-    return t('&lt;<multigraph ... /&gt; tags turn into interactive Multigraph graphs.');
+    return t('[multigraph ... ] markup turns into interactive Multigraph.');
   }
 }
 
@@ -228,23 +228,26 @@ function _multigraph_edit_tag( $matches )
 
   $id = sprintf("multigraph-%010d", mt_rand());
 
-  return <<<EOF
-<div id="$id"/>
-<script type="text/javascript">
-    window.multigraph.jQuery(document).ready(function() {
-      window.multigraph.jQuery('#$id').multigraph({
-        width : $width,
-        height: $height,
-        mugl: '$mugl',
-        flash_mugl: '$flash_mugl',
-        error: function(e) { 
+  $js = <<<EOF
+(function(jQuery){
+  jQuery(document).ready(function() {
+    jQuery('#$id').multigraph({
+        width      : $width,
+        height     : $height,
+        mugl       : '$mugl',
+        flash_mugl : '$flash_mugl',
+        error      : function(e) { 
             console.log(e);
             throw e;
         }
       });
-    });
-</script>
+  });
+}(window.multigraph.jQuery));
 EOF
-;
+  ;
+
+  drupal_add_js($js, array('type' => 'inline', 'scope' => 'footer'));
+
+  return "<div id=\"$id\"/>";
 
 }
