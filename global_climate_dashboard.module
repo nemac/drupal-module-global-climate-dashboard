@@ -217,14 +217,21 @@ function _multigraph_edit_tag( $matches )
   $args = array();
   for ($i=0; $i<count($assignments); ++$i) {
     list($var,$val) = preg_split('/=/', $assignments[$i]);
-    $val = preg_replace('/^"(.*)"$/', "$1", $val);
-    $args[$var] = $val;
+    // we run $val through html_entity_decode() because for some reason any quotes within it have been
+    // converted to HTML entities at this point
+    $val = html_entity_decode($val);
+    // remove delimiting double-quotes, if any
+    $val = preg_replace('/^"(.*)"$/', "$1", $val );
+    // remove delimiting single-quotes, if any
+    $val = preg_replace('/^\'(.*)\'$/', "$1", $val );
+    // run the final result through check_plain() to sanitize it
+    $args[$var] = check_plain( $val );
   }
-  if (array_key_exists('width',       $args))  { $width        = check_plain( $args['width'] );       }
-  if (array_key_exists('height',      $args))  { $height       = check_plain( $args['height'] );      }
-  if (array_key_exists('mugl',        $args))  { $mugl         = check_plain( $args['mugl'] );        }
+  if (array_key_exists('width',       $args))  { $width        = $args['width'];       }
+  if (array_key_exists('height',      $args))  { $height       = $args['height'];      }
+  if (array_key_exists('mugl',        $args))  { $mugl         = $args['mugl'];        }
   $flash_mugl = '';
-  if (array_key_exists('flash_mugl',  $args))  { $flash_mugl   = check_plain( $args['flash_mugl'] );  }
+  if (array_key_exists('flash_mugl',  $args))  { $flash_mugl   = $args['flash_mugl'];  }
 
   $id = sprintf("multigraph-%010d", mt_rand());
 
