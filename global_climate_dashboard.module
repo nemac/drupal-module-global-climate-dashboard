@@ -443,3 +443,28 @@ function global_climate_dashboard_validate($node, $form, &$form_state) {
   }
 
 }
+
+function global_climate_dashboard_node_access($node, $op, $account) {
+  if (($op == 'view') && $node && (gettype($node)=="object")) {
+
+    // Don't all anonymous users to view nodes of type 'gcd_mugl' or 'gcd_data'; they can still
+    // use the mugl service at the 'mugl' URL to fetch MUGLs, so the dashboard and multigraphs
+    // will work for them, but we want to hide the gcd_mugl and gcd_data nodes from direct view.
+
+    if ($node->type == "gcd_mugl") {
+      if (!user_is_logged_in()) {
+        return NODE_ACCESS_DENY;
+      }
+      return NODE_ACCESS_IGNORE;
+    }
+
+    if ($node->type == "gcd_data") {
+      if (!user_is_logged_in()) {
+        return NODE_ACCESS_DENY;
+      }
+      return NODE_ACCESS_IGNORE;
+    }
+
+
+  }
+}
