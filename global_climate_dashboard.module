@@ -403,3 +403,11 @@ function _gcd_data_fields() {
     
   );
 }
+
+function global_climate_dashboard_validate($node, $form, &$form_state) {
+  if ($node->type == "gcd_data") {
+    if ($node->gcd_data_id['und'][0]['value'] != "123") {
+      form_set_error('gcd_data_id', t('Data Id must equal 123'));
+    }
+  }
+}
