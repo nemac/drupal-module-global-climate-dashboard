@@ -405,9 +405,44 @@ function _gcd_data_fields() {
 }
 
 function global_climate_dashboard_validate($node, $form, &$form_state) {
+
+  //
+  // Validate gcd_data content type
+  //
   if ($node->type == "gcd_data") {
-    if ($node->gcd_data_id['und'][0]['value'] != "123") {
-      form_set_error('gcd_data_id', t('Data Id must equal 123'));
+    //dsm($node);
+    // make sure the gcd_data_id is unique among all nodes of type gcd_data
+    $rows = db_select('field_data_gcd_data_id', 't')
+      ->fields('t', array('entity_id'))
+      ->condition('gcd_data_id_value', $node->gcd_data_id['und'][0]['value'])
+      ->condition('entity_id', $node->nid, $operator="!=")
+      ->execute()
+      ->fetchAll();
+    if (!empty($rows)) {
+      form_set_error('gcd_data_id',
+                     t('Data Id must be unique (there is another Data item with id "'.$node->gcd_data_id['und'][0]['value'].'").  Please choose a different id.'));
     }
   }
+
+  //
+  // Validate gcd_mugl content type
+  //
+  if ($node->type == "gcd_mugl") {
+    //dsm($node);
+    // make sure the gcd_mugl_id is unique among all nodes of type gcd_mugl
+    $rows = db_select('field_mugl_gcd_mugl_id', 't')
+      ->fields('t', array('entity_id'))
+      ->condition('gcd_mugl_id_value', $node->gcd_mugl_id['und'][0]['value'])
+      ->condition('entity_id', $node->nid, $operator="!=")
+      ->execute()
+      ->fetchAll();
+    if (!empty($rows)) {
+      form_set_error('gcd_mugl_id',
+                     t('MUGL Id must be unique (there is another Mugl item with id "'.$node->gcd_mugl_id['und'][0]['value'].'").  Please choose a different id.'));
+    }
+  }
+
+
+
+
 }
