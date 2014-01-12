@@ -1,0 +1,3 @@
+#! /bin/bash
+
+drush -y dis global_climate_dashboard

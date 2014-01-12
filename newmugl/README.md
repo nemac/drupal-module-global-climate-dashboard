@@ -1,7 +1,7 @@
 This directory contains scratch code that I am using to create a drupal-based mugl service part
 of this module.
 
-The idea is to create 2 custom content type:
+The idea is to create 2 custom content types:
 
 dashboard_data:
     Stores CSV files or data (not sure if it should store the file as an uploaded file,
@@ -20,6 +20,5 @@ dashboard_mugl:
         graph-temp
         ...
         
-    Also provides a web service for delivering "expanded" versions of these documents, where
-    references have been replaced with their values, including CSV files for data.
-    
+Also provides a web service for delivering "expanded" versions of these documents, where
+references have been replaced with their values, including CSV files for data.

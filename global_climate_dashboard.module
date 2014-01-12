@@ -258,3 +258,148 @@ EOF
   return "<div id=\"$id\"/>";
 
 }
+
+
+/**
+ * Implements hook_node_info().
+ *
+ * We use hook_node_info() to define our node content type.
+ */
+function global_climate_dashboard_node_info() {
+  // We define the node type as an associative array.
+  return array(
+    'gcd_mugl' => array(
+      'name' => t('Dashboard/Multigraph MUGL'),
+      'base' => 'global_climate_dashboard',
+      'description' => t('Stores MUGL documents for use with the Global Climate Dashboard and/or Multigraph.'),
+      'title_label' => t('MUGL Title'),
+      'locked' => TRUE,
+    ),
+    'gcd_data' => array(
+      'name' => t('Dashboard/Multigraph Data'),
+      'base' => 'global_climate_dashboard',
+      'description' => t('Stores CSV data for use with the Global Climate Dashboard and/or Multigraph.'),
+      'title_label' => t('Data Title'),
+      'locked' => TRUE,
+    ),
+  );
+}
+
+function global_climate_dashboard_form($node, $form_state) {
+  return node_content_form($node, $form_state);
+}
+
+function global_climate_dashboard_node_type_insert($content_type) {
+  if ($content_type->type == 'gcd_mugl') {
+    _gcd_add_fields('gcd_mugl', _gcd_mugl_fields());
+  } else if ($content_type->type == 'gcd_data') {
+    _gcd_add_fields('gcd_data', _gcd_data_fields());
+  }
+}
+
+function _gcd_add_fields($content_type, $fields) {
+    foreach ($fields as $field) {
+      field_create_field($field['field_info']);
+      $instance = $field['instance_info'];
+      $instance['entity_type'] = 'node';
+      $instance['bundle'] = $content_type;
+      field_create_instance($instance);
+    }
+}
+
+function _gcd_mugl_fields() {
+  return array(
+
+
+    array(
+      'field_info' => array(
+        'field_name'  => 'gcd_mugl_id',
+        'cardinality' => 1,
+        'type'        => 'text',
+      ),
+      'instance_info' => array(
+        'field_name'  => 'gcd_mugl_id',
+        'label' => t('MUGL Id'),
+        'description' => 'Enter a short id to be used to identify this MUGL; must be unique among all Dashboard/Multigraph MUGL nodes on this site.',
+        'type'        => 'text',
+        'widget'      => array(
+          'type'    => 'text_textfield',
+        ),
+      )
+    ),
+
+
+    array(
+      'field_info' => array(
+        'field_name'  => 'gcd_mugl',
+        'cardinality' => 1,
+        'type'        => 'text_long',
+      ),
+      'instance_info' => array(
+        'field_name'  => 'gcd_mugl',
+        'label' => t('MUGL'),
+        'description' => 'Enter the MUGL here.',
+        'type'        => 'text_long',
+        'widget' => array(
+          'type' => 'text_textarea',
+          'module' => 'text',
+          'settings' => array(
+            'rows' => '20'
+          )
+        ),
+      )
+    ),
+
+
+    
+  );
+}
+
+
+function _gcd_data_fields() {
+  return array(
+
+
+    array(
+      'field_info' => array(
+        'field_name'  => 'gcd_data_id',
+        'cardinality' => 1,
+        'type'        => 'text',
+      ),
+      'instance_info' => array(
+        'field_name'  => 'gcd_data_id',
+        'label' => t('Data Id'),
+        'description' => 'Enter a short id to be used to identify this data; must be unique among all Dashboard/Multigraph Data nodes on this site.',
+        'type'        => 'text',
+        'widget'      => array(
+          'type'    => 'text_textfield',
+        ),
+      )
+    ),
+
+
+    array(
+      'field_info' => array(
+        'field_name'  => 'gcd_data',
+        'cardinality' => 1,
+        'type'        => 'text_long',
+      ),
+      'instance_info' => array(
+        'field_name'  => 'gcd_data',
+        'label' => t('Data'),
+        'description' => 'Type or paste the data here.  It should be in CSV format, one set of values per row, with values on the same row separated by commas.',
+        'type'        => 'text_long',
+        'widget' => array(
+          'type' => 'text_textarea',
+          'module' => 'text',
+          'settings' => array(
+            'rows' => '20'
+          )
+        ),
+      )
+    ),
+
+
+    
+  );
+}

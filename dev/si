@@ -1,0 +1,7 @@
+#! /bin/bash
+
+# re-install drupal; this completely replaces the current database
+drush -y site-install
+
+# reset the admin user password
+drush upwd admin --password=`cat dev/.password`
