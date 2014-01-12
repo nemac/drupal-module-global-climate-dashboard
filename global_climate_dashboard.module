@@ -430,7 +430,7 @@ function global_climate_dashboard_validate($node, $form, &$form_state) {
   if ($node->type == "gcd_mugl") {
     //dsm($node);
     // make sure the gcd_mugl_id is unique among all nodes of type gcd_mugl
-    $rows = db_select('field_mugl_gcd_mugl_id', 't')
+    $rows = db_select('field_data_gcd_mugl_id', 't')
       ->fields('t', array('entity_id'))
       ->condition('gcd_mugl_id_value', $node->gcd_mugl_id['und'][0]['value'])
       ->condition('entity_id', $node->nid, $operator="!=")
@@ -441,8 +441,5 @@ function global_climate_dashboard_validate($node, $form, &$form_state) {
                      t('MUGL Id must be unique (there is another Mugl item with id "'.$node->gcd_mugl_id['und'][0]['value'].'").  Please choose a different id.'));
     }
   }
-
-
-
 
 }
