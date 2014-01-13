@@ -428,8 +428,9 @@ function global_climate_dashboard_validate($node, $form, &$form_state) {
   // Validate gcd_mugl content type
   //
   if ($node->type == "gcd_mugl") {
-    //dsm($node);
+    //
     // make sure the gcd_mugl_id is unique among all nodes of type gcd_mugl
+    //
     $rows = db_select('field_data_gcd_mugl_id', 't')
       ->fields('t', array('entity_id'))
       ->condition('gcd_mugl_id_value', $node->gcd_mugl_id['und'][0]['value'])
@@ -440,8 +441,40 @@ function global_climate_dashboard_validate($node, $form, &$form_state) {
       form_set_error('gcd_mugl_id',
                      t('MUGL Id must be unique (there is another Mugl item with id "'.$node->gcd_mugl_id['und'][0]['value'].'").  Please choose a different id.'));
     }
+    //
+    // make sure the gcd_mugl_id is unique among all nodes of type gcd_mugl
+    //
+    $err = _gcd_validate_xml($node->gcd_mugl['und'][0]['value']);
+    if ($err != "") {
+      //      form_set_err('gcd_mugl', t('there was a big problem with your XML'));
+      form_set_error('gcd_mugl', t($err));
+    }
   }
 
+}
+
+function _gcd_handlexmlerror($errno, $errstr, $errfile, $errline) {
+  if ($errno==E_WARNING && (substr_count($errstr,"DOMDocument::loadXML()")>0)) {
+      throw new DOMException($errstr);
+  } else {
+      return false;
+  }
+}
+
+function _gcd_validate_xml($xml) {
+  set_error_handler('_gcd_handlexmlerror');
+  try {
+    $doc = new DOMDocument();
+    $doc->loadXML($xml);
+  } catch (DOMException $e) {
+    return (
+      "The MUGL XML is not well-formed:\n" .
+      preg_replace('/in Entity, .*$/', '', 
+                   preg_replace('/^DOMDocument::loadXML\(\):\s+/', '',
+                                $e->getMessage()))
+    );
+  }
+  return "";
 }
 
 function global_climate_dashboard_node_access($node, $op, $account) {

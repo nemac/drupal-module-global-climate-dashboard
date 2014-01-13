@@ -1,0 +1,8 @@
+<graph id="aoi-oak1" name="aoi">
+  <title>Arctic Oscillation Index</title>
+  <shorttitle>Arctic Oscillation</shorttitle>
+  <description>When this index is negative, air pressure patterns are more likely to steer severe winter storms to the eastern U.S.</description>
+  <window border="0" margin="0" padding="0">
+  <ui eventhandler="saui" />
+  <legend visible="false" />
+</graph>
