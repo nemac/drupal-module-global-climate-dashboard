@@ -187,7 +187,7 @@ the atmosphere.
             <variable column="3" id="max_20c3m" />
           </variables>
           <values>
-            <dataValuesRef id="climate_projections2_20c3m.csv"/>
+            <dataValuesRef id="climate_projections2_20c3m"/>
           </values>
         </data>
         <data>
@@ -198,7 +198,7 @@ the atmosphere.
             <variable column="3" id="max_a1b" />
           </variables>
           <values>
-            <dataValuesRef id="climate_projections2_a1b.csv"/>
+            <dataValuesRef id="climate_projections2_a1b"/>
           </values>
         </data>
         <data>
@@ -209,7 +209,7 @@ the atmosphere.
             <variable column="3" id="max_a2" />
           </variables>
           <values>
-            <dataValuesRef id="climate_projections2_a2.csv"/>
+            <dataValuesRef id="climate_projections2_a2"/>
           </values>
         </data>
         <data>
@@ -220,7 +220,7 @@ the atmosphere.
             <variable column="3" id="max_b1" />
           </variables>
           <values>
-            <dataValuesRef id="climate_projections2_b1.csv"/>
+            <dataValuesRef id="climate_projections2_b1"/>
           </values>
         </data>
       </mugl>

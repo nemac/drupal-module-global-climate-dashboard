@@ -91,7 +91,7 @@
     </variables>
 
     <values>
-          <dataValuesRef id="climate_change_co2.csv"/>
+          <dataValuesRef id="climate_change_co2"/>
         </values>
   </data>
 </mugl></graph>

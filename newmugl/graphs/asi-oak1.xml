@@ -67,7 +67,7 @@ The graph shows the average area with at least 15% sea ice on its surface each S
 		  <variable column="1" id="minSQ" type="number" />
 		</variables>
 		<values>
-          <dataValuesRef id="climate_change_arctic_sea_ice.csv"/>
+          <dataValuesRef id="climate_change_arctic_sea_ice"/>
         </values>
 	  </data>
 	</mugl></graph>

@@ -70,7 +70,7 @@
       <variable column="1" id="col1"/>
     </variables>
     <values>
-          <dataValuesRef id="climate_change_sea_level.csv"/>
+          <dataValuesRef id="climate_change_sea_level"/>
         </values>
   </data>
 </mugl></graph>

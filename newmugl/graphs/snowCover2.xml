@@ -71,7 +71,7 @@
 		  <variable column="1" id="col1"/>
 		</variables>
 		<values>
-          <dataValuesRef id="climate_change_snow_cover.csv"/>
+          <dataValuesRef id="climate_change_snow_cover"/>
         </values>
 	  </data>
 	</mugl>

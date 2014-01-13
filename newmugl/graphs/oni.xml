@@ -69,7 +69,7 @@
 		  <variable column="1" id="minSQ" type="number" />
 		</variables>
 		<values>
-		  <dataValuesRef id="climate_vari_ONI.csv" />        
+		  <dataValuesRef id="climate_vari_ONI" />        
 		</values>
 	  </data>
 	</mugl></graph>

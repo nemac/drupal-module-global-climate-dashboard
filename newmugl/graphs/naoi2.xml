@@ -85,7 +85,7 @@
 		  <variable column="1" id="number" type="number"/>
 		</variables>
 		<values>
-          <dataValuesRef id="climate_vari_NAO.csv"/>
+          <dataValuesRef id="climate_vari_NAO"/>
         </values>
 	  </data>
 	</mugl></graph>

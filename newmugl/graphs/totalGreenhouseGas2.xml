@@ -66,7 +66,7 @@
       <variable column="1" id="col1"/>
     </variables>
     <values>
-          <dataValuesRef id="climate_change_aggi.csv"/>
+          <dataValuesRef id="climate_change_aggi"/>
         </values>
   </data>
 </mugl></graph>

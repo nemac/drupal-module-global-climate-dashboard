@@ -50,7 +50,7 @@
       <variable column="1" id="temp" />
     </variables>
     <values>
-      <dataValuesRef id="climate_change_temperature.csv" />
+      <dataValuesRef id="climate_change_temperature" />
     </values>
   </data>
 </mugl></graph>

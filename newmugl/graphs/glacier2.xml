@@ -65,7 +65,7 @@
 			  <variable column="1" id="col1"/>
 			</variables>
 			<values>
-          <dataValuesRef id="climate_change_glacier_ice_mass.csv"/>
+          <dataValuesRef id="climate_change_glacier_ice_mass"/>
         </values>
 		  </data>
 		</mugl></graph>
