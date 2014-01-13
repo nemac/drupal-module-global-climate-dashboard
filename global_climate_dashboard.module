@@ -637,6 +637,8 @@ function _gcd_get_mugl_dom_expanded($id) {
   $doc = _gcd_get_mugl_dom($id);
 
   if ($doc != null) {
+    $doc->documentElement->setAttribute("id", $id); // add the 'id' attribute
+
     $refElements = array();
     foreach (dnl2array($doc->getElementsByTagName("tabRef")) as $e) {
       $refElements[] = array(
@@ -663,7 +665,9 @@ function _gcd_get_mugl_dom_expanded($id) {
       $id = $e->getAttribute("id");
       if ($type == "dataValues") {
         $data = _gcd_get_data($id);
-        $childRoot = $doc->createTextNode($data);
+        $childRoot = $doc->createElement("values");
+        $childRoot->appendChild($doc->createTextNode($data));
+        $childRoot->setAttribute("id", $id);
       } else {
         $childDoc = _gcd_get_mugl_dom_expanded($id);
         $childRoot = $childDoc->documentElement;
