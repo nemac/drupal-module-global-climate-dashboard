@@ -2,7 +2,7 @@
 
 
 function HandleXmlError($errno, $errstr, $errfile, $errline) {
-  if ($errno==E_WARNING && (substr_count($errstr,"DOMDocument::load()")>0)) {
+  if ($errno==E_WARNING && (substr_count($errstr,"DOMDocument::loadXML()")>0)) {
       throw new DOMException($errstr);
   } else {
       return false;

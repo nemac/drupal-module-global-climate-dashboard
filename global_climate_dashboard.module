@@ -463,18 +463,20 @@ function _gcd_handlexmlerror($errno, $errstr, $errfile, $errline) {
 
 function _gcd_validate_xml($xml) {
   set_error_handler('_gcd_handlexmlerror');
+  $err = "";
   try {
     $doc = new DOMDocument();
     $doc->loadXML($xml);
   } catch (DOMException $e) {
-    return (
+    $err = (
       "The MUGL XML is not well-formed:\n" .
       preg_replace('/in Entity, .*$/', '', 
                    preg_replace('/^DOMDocument::loadXML\(\):\s+/', '',
                                 $e->getMessage()))
     );
   }
-  return "";
+  restore_error_handler();
+  return $err;
 }
 
 function global_climate_dashboard_node_access($node, $op, $account) {
