@@ -1,0 +1,108 @@
+[
+    {
+        "#node_export_object": "1", 
+        "changed": "1389600360", 
+        "cid": "0", 
+        "comment": "2", 
+        "comment_count": "0", 
+        "created": "1389588469", 
+        "data": "b:0;", 
+        "gcd_mugl_xmltext": {
+            "und": [
+                {
+                    "format": null, 
+                    "safe_value": "%(gcd_mugl_xmltext)s", 
+                    "value": "%(gcd_mugl_xmltext)s"
+                }
+            ]
+        }, 
+        "gcd_mugl_id": {
+            "und": [
+                {
+                    "format": null, 
+                    "safe_value": "%(gcd_mugl_id)s", 
+                    "value": "%(gcd_mugl_id)s"
+                }
+            ]
+        }, 
+        "language": "und", 
+        "last_comment_name": null, 
+        "last_comment_timestamp": "1389588469", 
+        "last_comment_uid": "1", 
+        "log": "", 
+        "menu": null, 
+        "name": "admin", 
+        "nid": "%(nid)s", 
+        "node_export_drupal_version": "7", 
+        "path": false, 
+        "picture": "0", 
+        "promote": "1", 
+        "rdf_mapping": {
+            "body": {
+                "predicates": [
+                    "content:encoded"
+                ]
+            }, 
+            "changed": {
+                "callback": "date_iso8601", 
+                "datatype": "xsd:dateTime", 
+                "predicates": [
+                    "dc:modified"
+                ]
+            }, 
+            "comment_count": {
+                "datatype": "xsd:integer", 
+                "predicates": [
+                    "sioc:num_replies"
+                ]
+            }, 
+            "created": {
+                "callback": "date_iso8601", 
+                "datatype": "xsd:dateTime", 
+                "predicates": [
+                    "dc:date", 
+                    "dc:created"
+                ]
+            }, 
+            "last_activity": {
+                "callback": "date_iso8601", 
+                "datatype": "xsd:dateTime", 
+                "predicates": [
+                    "sioc:last_activity_date"
+                ]
+            }, 
+            "name": {
+                "predicates": [
+                    "foaf:name"
+                ]
+            }, 
+            "rdftype": [
+                "sioc:Item", 
+                "foaf:Document"
+            ], 
+            "title": {
+                "predicates": [
+                    "dc:title"
+                ]
+            }, 
+            "uid": {
+                "predicates": [
+                    "sioc:has_creator"
+                ], 
+                "type": "rel"
+            }
+        }, 
+        "revision_timestamp": "1389600360", 
+        "revision_uid": "1", 
+        "status": "1", 
+        "sticky": "0", 
+        "title": "%(title)s", 
+        "tnid": "0", 
+        "translate": "0", 
+        "type": "gcd_mugl", 
+        "uid": "1", 
+        "uuid": "%(uuid)s", 
+        "vid": "%(vid)s", 
+        "vuuid": "%(vuuid)s"
+    }
+]

@@ -44,27 +44,35 @@ function _gcd_to_xml($domElement) {
   return $domElement->ownerDocument->saveXML($domElement);
 }
 
+function dnl2array($domNodeList) {
+  $answer = array();
+  for ($i=0; $i<$domNodeList->length; ++$i) {
+    $answer[] = $domNodeList->item($i);
+  }
+  return $answer;
+}
+
 /*
- * Take a MUGL Id string $id, and return a string containing the gcd_mugl field
- * value of the gcd_mugl node...
+ * Take a MUGL Id string $id, and return a string containing the gcd_mugl_xmltext field
+ * value of the gcd_mugl node whose gcd_mugl_id field equals $id
  */
 function _gcd_get_mugl($id) {
-  $query = db_select('field_data_gcd_mugl',  'v');
+  $query = db_select('field_data_gcd_mugl_xmltext',  'v');
   $query->join('field_data_gcd_mugl_id', 'i', 'i.entity_id=v.entity_id');
-  $query->fields('v', array('gcd_mugl_value'));
+  $query->fields('v', array('gcd_mugl_xmltext_value'));
   $query->condition('i.gcd_mugl_id_value', $id);
   return $query->execute()->fetchField();
 }
 
 function _gcd_get_data($id) {
-  $query = db_select('field_data_gcd_data',  'd');
+  $query = db_select('field_data_gcd_data_csvtext',  'd');
   $query->join('field_data_gcd_data_id', 'i', 'i.entity_id=d.entity_id');
-  $query->fields('d', array('gcd_data_value'));
+  $query->fields('d', array('gcd_data_csvtext_value'));
   $query->condition('i.gcd_data_id_value', $id);
   $data = $query->execute()->fetchField();
   // Remove control-M characters at EOL; somehow they creep in, either
   // because Drupal or MySQL is inserting them, perhaps due to some
-  // settings on the gcd_data field or table column that I didn't know
+  // settings on the gcd_data_csvtext field or table column that I didn't know
   // to unset.  In any case, the following str_replace gets rid of them.
   return str_ireplace("\x0D", "", $data);
 }
@@ -119,7 +127,7 @@ function _gcd_get_mugl_dom_expanded($id) {
   return $doc;
 }
 
-$d = _gcd_get_mugl_dom_expanded('tab1');
+$d = _gcd_get_mugl_dom_expanded('flat-dashboard');
 print $d->saveXML();
 
 

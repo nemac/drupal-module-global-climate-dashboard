@@ -1,0 +1,163 @@
+#! /usr/bin/python
+
+import os
+
+def hexstring_plus_one(s):
+    return s[:-6] + ( "%6x" % (int(s[-6:], 16)+1) )
+
+class IdGenerator:
+    def __init__(self):
+        self.uuid  = "455fbcd9-0efe-4299-bf5a-cca808cd01d8"
+        self.vuuid = "a842f720-efaf-46c0-8032-2b60702aee02"
+        self.nid = 123
+
+    def next_uuid(self):
+        self.uuid = hexstring_plus_one(self.uuid)
+        return self.uuid
+
+    def next_vuuid(self):
+        self.vuuid = hexstring_plus_one(self.vuuid)
+        return self.vuuid
+
+    def next_nid(self):
+        self.nid = self.nid + 1
+        return self.nid
+
+
+class Template:
+    def __init__(self, file):
+        with open(file, "r") as f:
+            self.template = f.read()
+    def render(self, dict):
+        return self.template % dict
+
+
+idgen = IdGenerator()
+gcd_data_tpl = Template("gcd_data.tpl.json")
+gcd_mugl_tpl = Template("gcd_mugl.tpl.json")
+
+def gcd_data_json(data_id, title, data_filename):
+    with open(data_filename, "r") as f:
+        csvtext = f.read()
+    nid = idgen.next_nid()
+    return gcd_data_tpl.render({
+            'gcd_data_csvtext' : csvtext.replace("\n", "\\n"),
+            'gcd_data_id' : data_id,
+            'title' : title,
+            'nid' : nid,
+            'vid' : nid,
+            'uuid' : idgen.next_uuid(),
+            'vuuid' : idgen.next_vuuid()
+            })
+
+def gcd_mugl_json(mugl_id, title, mugl_filename):
+    with open(mugl_filename, "r") as f:
+        xmltext = f.read()
+    nid = idgen.next_nid()
+    return gcd_mugl_tpl.render({
+            'gcd_mugl_xmltext' : xmltext.replace('"', '\\"').replace("\t", " ").replace("\n", "\\n"),
+            'gcd_mugl_id' : mugl_id,
+            'title' : title,
+            'nid' : nid,
+            'vid' : nid,
+            'uuid' : idgen.next_uuid(),
+            'vuuid' : idgen.next_vuuid()
+            })
+
+def import_mugl(mugl_id, title, mugl_filename):
+    print "importing %s" % mugl_filename
+    with open("file.json", "w") as f:
+        f.write(gcd_mugl_json(mugl_id, title, mugl_filename))
+    os.system("drush ne-import < file.json")
+    os.remove("file.json")
+
+def import_data(data_id, title, data_filename):
+    print "importing %s" % data_filename
+    with open("file.json", "w") as f:
+        f.write(gcd_data_json(data_id, title, data_filename))
+    os.system("drush ne-import < file.json")
+    os.remove("file.json")
+
+import_mugl("dashboard2", "dashboard: dashboard2", "../newmugl/dashboards/dashboard2.xml")
+import_mugl("dashboard-oak1", "dashboard: dashboard-oak1", "../newmugl/dashboards/dashboard-oak1.xml")
+import_mugl("flat-dashboard", "dashboard: flat-dashboard", "../newmugl/dashboards/flat-dashboard.xml")
+
+import_mugl("climateChange2", "tab: climateChange2", "../newmugl/tabs/climateChange2.xml")
+import_mugl("climateChange-oak1", "tab: climateChange-oak1", "../newmugl/tabs/climateChange-oak1.xml")
+import_mugl("climateChange", "tab: climateChange", "../newmugl/tabs/climateChange.xml")
+import_mugl("climateProjections2", "tab: climateProjections2", "../newmugl/tabs/climateProjections2.xml")
+import_mugl("climateProjections-oak1", "tab: climateProjections-oak1", "../newmugl/tabs/climateProjections-oak1.xml")
+import_mugl("climateProjections", "tab: climateProjections", "../newmugl/tabs/climateProjections.xml")
+import_mugl("climateVariability2", "tab: climateVariability2", "../newmugl/tabs/climateVariability2.xml")
+import_mugl("climateVariability-oak1", "tab: climateVariability-oak1", "../newmugl/tabs/climateVariability-oak1.xml")
+import_mugl("climateVariability", "tab: climateVariability", "../newmugl/tabs/climateVariability.xml")
+
+import_mugl("aoi2", "graph: aoi2", "../newmugl/graphs/aoi2.xml")
+import_mugl("aoi-oak1", "graph: aoi-oak1", "../newmugl/graphs/aoi-oak1.xml")
+import_mugl("aoi", "graph: aoi", "../newmugl/graphs/aoi.xml")
+import_mugl("asi2", "graph: asi2", "../newmugl/graphs/asi2.xml")
+import_mugl("asi-oak1", "graph: asi-oak1", "../newmugl/graphs/asi-oak1.xml")
+import_mugl("asi", "graph: asi", "../newmugl/graphs/asi.xml")
+import_mugl("carbonDioxide2", "graph: carbonDioxide2", "../newmugl/graphs/carbonDioxide2.xml")
+import_mugl("carbonDioxide-oak1", "graph: carbonDioxide-oak1", "../newmugl/graphs/carbonDioxide-oak1.xml")
+import_mugl("carbonDioxide", "graph: carbonDioxide", "../newmugl/graphs/carbonDioxide.xml")
+import_mugl("cp2", "graph: cp2", "../newmugl/graphs/cp2.xml")
+import_mugl("cp-oak1", "graph: cp-oak1", "../newmugl/graphs/cp-oak1.xml")
+import_mugl("cp", "graph: cp", "../newmugl/graphs/cp.xml")
+import_mugl("glacier2", "graph: glacier2", "../newmugl/graphs/glacier2.xml")
+import_mugl("glacier-oak1", "graph: glacier-oak1", "../newmugl/graphs/glacier-oak1.xml")
+import_mugl("glacier", "graph: glacier", "../newmugl/graphs/glacier.xml")
+import_mugl("naoi2", "graph: naoi2", "../newmugl/graphs/naoi2.xml")
+import_mugl("naoi-oak1", "graph: naoi-oak1", "../newmugl/graphs/naoi-oak1.xml")
+import_mugl("naoi", "graph: naoi", "../newmugl/graphs/naoi.xml")
+import_mugl("oceanHeat2", "graph: oceanHeat2", "../newmugl/graphs/oceanHeat2.xml")
+import_mugl("oceanHeat-oak1", "graph: oceanHeat-oak1", "../newmugl/graphs/oceanHeat-oak1.xml")
+import_mugl("oceanHeat", "graph: oceanHeat", "../newmugl/graphs/oceanHeat.xml")
+import_mugl("oni2", "graph: oni2", "../newmugl/graphs/oni2.xml")
+import_mugl("oni-oak1", "graph: oni-oak1", "../newmugl/graphs/oni-oak1.xml")
+import_mugl("oni", "graph: oni", "../newmugl/graphs/oni.xml")
+import_mugl("pnap2", "graph: pnap2", "../newmugl/graphs/pnap2.xml")
+import_mugl("pnap-oak1", "graph: pnap-oak1", "../newmugl/graphs/pnap-oak1.xml")
+import_mugl("pnap", "graph: pnap", "../newmugl/graphs/pnap.xml")
+import_mugl("seaLevel2", "graph: seaLevel2", "../newmugl/graphs/seaLevel2.xml")
+import_mugl("seaLevel-oak1", "graph: seaLevel-oak1", "../newmugl/graphs/seaLevel-oak1.xml")
+import_mugl("seaLevel", "graph: seaLevel", "../newmugl/graphs/seaLevel.xml")
+import_mugl("snowCover2", "graph: snowCover2", "../newmugl/graphs/snowCover2.xml")
+import_mugl("snowCover-oak1", "graph: snowCover-oak1", "../newmugl/graphs/snowCover-oak1.xml")
+import_mugl("snowCover", "graph: snowCover", "../newmugl/graphs/snowCover.xml")
+import_mugl("soi2", "graph: soi2", "../newmugl/graphs/soi2.xml")
+import_mugl("soi-oak1", "graph: soi-oak1", "../newmugl/graphs/soi-oak1.xml")
+import_mugl("soi", "graph: soi", "../newmugl/graphs/soi.xml")
+import_mugl("sunsEnergy2", "graph: sunsEnergy2", "../newmugl/graphs/sunsEnergy2.xml")
+import_mugl("sunsEnergy-oak1", "graph: sunsEnergy-oak1", "../newmugl/graphs/sunsEnergy-oak1.xml")
+import_mugl("sunsEnergy", "graph: sunsEnergy", "../newmugl/graphs/sunsEnergy.xml")
+import_mugl("temperature2", "graph: temperature2", "../newmugl/graphs/temperature2.xml")
+import_mugl("temperature-oak1", "graph: temperature-oak1", "../newmugl/graphs/temperature-oak1.xml")
+import_mugl("temperature", "graph: temperature", "../newmugl/graphs/temperature.xml")
+import_mugl("totalGreenhouseGas2", "graph: totalGreenhouseGas2", "../newmugl/graphs/totalGreenhouseGas2.xml")
+import_mugl("totalGreenhouseGas-oak1", "graph: totalGreenhouseGas-oak1", "../newmugl/graphs/totalGreenhouseGas-oak1.xml")
+import_mugl("totalGreenhouseGas", "graph: totalGreenhouseGas", "../newmugl/graphs/totalGreenhouseGas.xml")
+
+import_data("climate_change_aggi", "data: climate_change_aggi", "../newmugl/data/climate_change_aggi.csv")
+import_data("climate_change_arctic_sea_ice", "data: climate_change_arctic_sea_ice", "../newmugl/data/climate_change_arctic_sea_ice.csv")
+import_data("climate_change_co2", "data: climate_change_co2", "../newmugl/data/climate_change_co2.csv")
+import_data("climate_change_glacier_ice_mass", "data: climate_change_glacier_ice_mass", "../newmugl/data/climate_change_glacier_ice_mass.csv")
+import_data("climate_change_ocean_heat_content", "data: climate_change_ocean_heat_content", "../newmugl/data/climate_change_ocean_heat_content.csv")
+import_data("climate_change_sea_level", "data: climate_change_sea_level", "../newmugl/data/climate_change_sea_level.csv")
+import_data("climate_change_snow_cover", "data: climate_change_snow_cover", "../newmugl/data/climate_change_snow_cover.csv")
+import_data("climate_change_sun_energy", "data: climate_change_sun_energy", "../newmugl/data/climate_change_sun_energy.csv")
+import_data("climate_change_temperature", "data: climate_change_temperature", "../newmugl/data/climate_change_temperature.csv")
+import_data("climate_projections_20c3m", "data: climate_projections_20c3m", "../newmugl/data/climate_projections_20c3m.csv")
+import_data("climate_projections2_20c3m", "data: climate_projections2_20c3m", "../newmugl/data/climate_projections2_20c3m.csv")
+import_data("climate_projections2_a1b", "data: climate_projections2_a1b", "../newmugl/data/climate_projections2_a1b.csv")
+import_data("climate_projections2_a2", "data: climate_projections2_a2", "../newmugl/data/climate_projections2_a2.csv")
+import_data("climate_projections2_b1", "data: climate_projections2_b1", "../newmugl/data/climate_projections2_b1.csv")
+import_data("climate_projections_a1b", "data: climate_projections_a1b", "../newmugl/data/climate_projections_a1b.csv")
+import_data("climate_projections_a2", "data: climate_projections_a2", "../newmugl/data/climate_projections_a2.csv")
+import_data("climate_projections_b1", "data: climate_projections_b1", "../newmugl/data/climate_projections_b1.csv")
+import_data("climate_vari_AO", "data: climate_vari_AO", "../newmugl/data/climate_vari_AO.csv")
+import_data("climate_vari_NAO", "data: climate_vari_NAO", "../newmugl/data/climate_vari_NAO.csv")
+import_data("climate_vari_ONI", "data: climate_vari_ONI", "../newmugl/data/climate_vari_ONI.csv")
+import_data("climate_vari_PNA", "data: climate_vari_PNA", "../newmugl/data/climate_vari_PNA.csv")
+import_data("climate_vari_SOI", "data: climate_vari_SOI", "../newmugl/data/climate_vari_SOI.csv")
+

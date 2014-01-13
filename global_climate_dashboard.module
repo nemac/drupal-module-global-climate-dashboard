@@ -331,14 +331,14 @@ function _gcd_mugl_fields() {
 
     array(
       'field_info' => array(
-        'field_name'  => 'gcd_mugl',
+        'field_name'  => 'gcd_mugl_xmltext',
         'cardinality' => 1,
         'type'        => 'text_long',
       ),
       'instance_info' => array(
-        'field_name'  => 'gcd_mugl',
+        'field_name'  => 'gcd_mugl_xmltext',
         'label' => t('MUGL'),
-        'description' => 'Enter the MUGL here.',
+        'description' => 'Enter the MUGL here; this should be a valid XML document.',
         'type'        => 'text_long',
         'widget' => array(
           'type' => 'text_textarea',
@@ -380,12 +380,12 @@ function _gcd_data_fields() {
 
     array(
       'field_info' => array(
-        'field_name'  => 'gcd_data',
+        'field_name'  => 'gcd_data_csvtext',
         'cardinality' => 1,
         'type'        => 'text_long',
       ),
       'instance_info' => array(
-        'field_name'  => 'gcd_data',
+        'field_name'  => 'gcd_data_csvtext',
         'label' => t('Data'),
         'description' => 'Type or paste the data here.  It should be in CSV format, one set of values per row, with values on the same row separated by commas.',
         'type'        => 'text_long',
@@ -442,12 +442,11 @@ function global_climate_dashboard_validate($node, $form, &$form_state) {
                      t('MUGL Id must be unique (there is another Mugl item with id "'.$node->gcd_mugl_id['und'][0]['value'].'").  Please choose a different id.'));
     }
     //
-    // make sure the gcd_mugl_id is unique among all nodes of type gcd_mugl
+    // make sure the gcd_mugl_xmltext value is well-formed XML
     //
-    $err = _gcd_validate_xml($node->gcd_mugl['und'][0]['value']);
+    $err = _gcd_validate_xml($node->gcd_mugl_xmltext['und'][0]['value']);
     if ($err != "") {
-      //      form_set_err('gcd_mugl', t('there was a big problem with your XML'));
-      form_set_error('gcd_mugl', t($err));
+      form_set_error('gcd_mugl_xmltext', t($err));
     }
   }
 
