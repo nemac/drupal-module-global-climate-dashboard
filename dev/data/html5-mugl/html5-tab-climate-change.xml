@@ -1,0 +1,31 @@
+<tab>
+    <title>Climate Change</title>
+    <timeslider />
+    <mugloverrides>
+      <element name="horizontalaxis">
+        <attribute name="min" value="1950" />
+        <attribute name="max" value="2015" />
+        <element name="binding">
+          <attribute name="id" value="Tab1TimeBinding" />
+        </element>
+        <element name="pan">
+          <attribute name="min" value="1880" />
+          <attribute name="max" value="2020" />
+        </element>
+        <element name="zoom">
+          <attribute name="min" value="6M" />
+        </element>
+      </element>
+    </mugloverrides>
+
+    <graphRef id="html5-graph-temperature"/>
+    <graphRef id="html5-graph-co2"/>
+    <graphRef id="html5-graph-snowcover"/>
+    <graphRef id="html5-graph-sealevel"/>
+    <graphRef id="html5-graph-asi"/>
+    <graphRef id="html5-graph-oceanheat"/>
+    <graphRef id="html5-graph-sunsenergy"/>
+    <graphRef id="html5-graph-glacier"/>
+    <graphRef id="html5-graph-aggi"/>
+
+</tab>

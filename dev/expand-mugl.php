@@ -1,9 +1,8 @@
 <?php
 
 
-#$x = _gcd_get_mugl('dat-flashboard');
-$x = _gcd_get_mugl('flat-dashboard');
+#$x = _gcd_get_mugl('html5-graph-pnap');
+#print $x;
 
-#$d = _gcd_get_mugl_dom_expanded('dat-flashboard');
-#
-#print $d->saveXML();
+$d = _gcd_get_mugl_dom_expanded('html5-graph-pnap');
+print $d->saveXML();

@@ -1,0 +1,26 @@
+<tab>
+    <title>Climate Variability</title>
+    <timeslider />
+    <mugloverrides>
+      <element name="horizontalaxis">
+        <attribute name="min" value="2010" />
+        <attribute name="max" value="2014" />
+        <element name="binding">
+          <attribute name="id" value="Tab2TimeBinding" />
+        </element>
+        <element name="pan">
+          <attribute name="min" value="1950" />
+          <attribute name="max" value="2015" />
+        </element>
+        <element name="zoom">
+          <attribute name="min" value="6M" />
+        </element>
+      </element>
+    </mugloverrides>
+    <graphRef id="flash-graph-oni" />
+    <graphRef id="flash-graph-aoi" />
+    <graphRef id="flash-graph-naoi" />
+    <graphRef id="flash-graph-soi" />
+    <graphRef id="flash-graph-pnap" />
+
+</tab>
