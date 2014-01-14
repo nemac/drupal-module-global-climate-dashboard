@@ -255,7 +255,7 @@ EOF
 
   drupal_add_js($js, array('type' => 'inline', 'scope' => 'footer'));
 
-  return "<div id=\"$id\"/>";
+  return "<div id=\"$id\"></div>";
 
 }
 
