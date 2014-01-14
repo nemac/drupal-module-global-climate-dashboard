@@ -521,6 +521,8 @@ function global_climate_dashboard_menu() {
 
 function _gcd_mugl_controller($id,$subelement) {
   $doc = _gcd_get_mugl_dom_expanded($id);
+  $doc->formatOutput = true;
+
   if ($doc == null) {
       header("Content-type: application/xml");
       print('<error>mugl not found</error>');
@@ -627,8 +629,7 @@ function _gcd_get_mugl_dom($id) {
   $mugl = _gcd_get_mugl($id);
   if ($mugl == null) { return null; }
   $doc = new DOMDocument();
-  $doc->resolveExternals = true;
-  $doc->substituteEntities = false;
+  $doc->preserveWhiteSpace = false;
   $doc->loadXML($mugl);
   return $doc;
 }
