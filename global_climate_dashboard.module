@@ -555,16 +555,16 @@ function _gcd_mugl_controller($id,$subelement) {
     if ($domNodeList->length < 1) {
       // should really throw a 404, or 500, here
       header("Content-type: application/xml");
-      print('<error>mugl not found</error>');
+      print("<error>mugl not found</error>\n");
       drupal_exit();
     }
     $muglNode = $domNodeList->item(0);
     header("Content-type: application/xml");
-    print _gcd_to_xml($muglNode);
+    print _gcd_to_xml($muglNode) . "\n";
     drupal_exit();
   }
 
-  print $doc->saveXML();
+  print $doc->saveXML() . "\n";
   drupal_exit();
 }
 
@@ -688,7 +688,7 @@ function _gcd_get_mugl_dom_expanded($id) {
       if ($type == "dataValues") {
         $data = _gcd_get_data($id);
         $childRoot = $doc->createElement("values");
-        $childRoot->appendChild($doc->createTextNode($data));
+        $childRoot->appendChild($doc->createTextNode("\n".$data));
         $childRoot->setAttribute("id", $id);
       } else {
         $childDoc = _gcd_get_mugl_dom_expanded($id);
