@@ -404,6 +404,19 @@ function _gcd_data_fields() {
   );
 }
 
+function global_climate_dashboard_view($node, $view_mode) {
+  if ($node->type == "gcd_mugl" || $node->type == "gcd_data") {
+    drupal_add_css(drupal_get_path('module', 'global_climate_dashboard') . "/global_climate_dashboard_admin.css");
+  }
+  return $node;
+}
+
+function global_climate_dashboard_node_presave($node) {
+  if ($node->type == "gcd_mugl") {
+    $node->gcd_mugl_xmltext["und"][0]["value"] = _gcd_pretty_xml($node->gcd_mugl_xmltext["und"][0]["value"]);
+  }
+}
+
 function global_climate_dashboard_validate($node, $form, &$form_state) {
 
   //
@@ -458,6 +471,14 @@ function _gcd_handlexmlerror($errno, $errstr, $errfile, $errline) {
   } else {
       return false;
   }
+}
+
+function _gcd_pretty_xml($xml) {
+    $doc = new DOMDocument();
+    $doc->preserveWhiteSpace = false;
+    $doc->loadXML($xml);
+    $doc->formatOutput = true;
+    return _gcd_to_xml($doc->documentElement);
 }
 
 function _gcd_validate_xml($xml) {

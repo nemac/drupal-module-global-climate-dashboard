@@ -1,0 +1,9 @@
+div.field-name-gcd-mugl-xmltext div.field-item,
+div.field-name-gcd-data-csvtext div.field-item {
+  padding: 5px;
+  border: 1px solid black;
+  white-space: pre;
+  overflow: scroll;
+  width: 900px;
+  height: 700px;
+}
