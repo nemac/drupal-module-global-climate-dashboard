@@ -415,6 +415,9 @@ function global_climate_dashboard_node_presave($node) {
   if ($node->type == "gcd_mugl") {
     $node->gcd_mugl_xmltext["und"][0]["value"] = _gcd_pretty_xml($node->gcd_mugl_xmltext["und"][0]["value"]);
   }
+  if ($node->type == "gcd_data") {
+    $node->gcd_data_csvtext["und"][0]["value"] = _gcd_pretty_csv($node->gcd_data_csvtext["und"][0]["value"]);
+  }
 }
 
 function global_climate_dashboard_validate($node, $form, &$form_state) {
@@ -434,6 +437,13 @@ function global_climate_dashboard_validate($node, $form, &$form_state) {
     if (!empty($rows)) {
       form_set_error('gcd_data_id',
                      t('Data Id must be unique (there is another Data item with id "'.$node->gcd_data_id['und'][0]['value'].'").  Please choose a different id.'));
+    }
+    //
+    // make sure the gcd_data_csvtext value is valid
+    //
+    $err = _gcd_validate_csv($node->gcd_data_csvtext['und'][0]['value']);
+    if ($err != "") {
+      form_set_error('gcd_data_csvtext', t($err));
     }
   }
 
@@ -473,12 +483,40 @@ function _gcd_handlexmlerror($errno, $errstr, $errfile, $errline) {
   }
 }
 
+function _gcd_pretty_csv($csv) {
+  $lines = preg_split("/\s*\n\s*/", trim($csv));
+  $nonblank_lines = array();
+  foreach ($lines as $line) {
+    $line = trim($line);
+    if ($line != "") {
+      $nonblank_lines[] = join(",", preg_split("/\s*,\s*/", $line));
+    }
+  }
+  return join("\n", $nonblank_lines);
+}
+
+function _gcd_validate_csv($csv) {
+  $csv = _gcd_pretty_csv($csv);
+  $lines = preg_split("/\s*\n\s*/", $csv);
+  if (count($lines) == 0) {
+    return "The CSV text cannot be empty.";
+  }
+  $nfields = count(preg_split("/,/", $lines[0]));
+  for ($i=1; $i<count($lines); ++$i) {
+    $nf = count(preg_split("/,/", $lines[$i]));
+    if ($nf != $nfields) {
+      return sprintf("Inconsistent number of values: there are %1d values on line 1, but %1d values on line %1d.", $nfields, $nf, $i+1);
+    }
+  }
+  return "";
+}
+
 function _gcd_pretty_xml($xml) {
-    $doc = new DOMDocument();
-    $doc->preserveWhiteSpace = false;
-    $doc->loadXML($xml);
-    $doc->formatOutput = true;
-    return _gcd_to_xml($doc->documentElement);
+  $doc = new DOMDocument();
+  $doc->preserveWhiteSpace = false;
+  $doc->loadXML($xml);
+  $doc->formatOutput = true;
+  return _gcd_to_xml($doc->documentElement);
 }
 
 function _gcd_validate_xml($xml) {
