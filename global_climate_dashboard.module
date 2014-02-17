@@ -25,6 +25,10 @@ function global_climate_dashboard_block_info() {
     array(
           'info' => t('Global Climate Dashboard'),
           );
+  $blocks['global_climate_dashboard_preview'] =
+    array(
+          'info' => t('Global Climate Dashboard Preview'),
+          );
   return $blocks;
 }
 
@@ -114,6 +118,7 @@ function global_climate_dashboard_block_save($delta ='', $edit = array()) {
 function global_climate_dashboard_block_view($delta = '') {
   switch($delta) {
   case 'global_climate_dashboard':
+  case 'global_climate_dashboard_preview':
     $block['content'] = global_climate_dashboard_contents($delta);	
     return $block;
     break;
@@ -125,7 +130,10 @@ function global_climate_dashboard_block_view($delta = '') {
  * Custom function to render the 'mugl' field.
  */
 function global_climate_dashboard_contents($delta) {
+  $preview = false;
   switch($delta) {
+  case 'global_climate_dashboard_preview':
+    $preview = true;
   case 'global_climate_dashboard':
     drupal_add_css(drupal_get_path('module', 'global_climate_dashboard') . "/global_climate_dashboard.css");
     drupal_add_css(drupal_get_path('module', 'global_climate_dashboard') . "/html5-app/dashboard.css");
@@ -133,10 +141,10 @@ function global_climate_dashboard_contents($delta) {
 
     $width           = variable_get('global_climate_dashboard_width');
     $height          = variable_get('global_climate_dashboard_height');
-    $config_path     = variable_get('global_climate_dashboard_config_path');
+    $config_path     = variable_get('global_climate_dashboard_config_path') . ($preview ? "/draft" : "");
     $assets_path     = variable_get('global_climate_dashboard_assets_path');
     $swf_path        = variable_get('global_climate_dashboard_swf_path');
-    $swf_config_path = variable_get('global_climate_dashboard_swf_config_path');
+    $swf_config_path = variable_get('global_climate_dashboard_swf_config_path')  . ($preview ? "/draft" : "");
 
     if (strpos($swf_path, '://') === false) {
       // if the swf_path is not an absolute url, prepend the drupal base path to it:
@@ -567,19 +575,34 @@ function global_climate_dashboard_node_access($node, $op, $account) {
  */
 function global_climate_dashboard_menu() {
 
-  $items['mugl'] = array(
+  $items['gcd/mugl'] = array(
     'type' => MENU_CALLBACK,
     'title' => 'Callback Only',
     'page callback' => '_gcd_mugl_controller',
-    'page arguments' => array(1,2),
+    'page arguments' => array(2,3),
+    'access callback' => TRUE,
+  );
+  $items['gcd/dashboard'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => 'Callback Only',
+    'page callback' => '_gcd_dashboard_controller',
+    'page arguments' => array(2,3),
     'access callback' => TRUE,
   );
 
   return $items;
 }
 
-function _gcd_mugl_controller($id,$subelement) {
-  $doc = _gcd_get_mugl_dom_expanded($id);
+function _gcd_dashboard_controller($id,$draft) {
+  $latest_draft = ($draft == "draft");
+
+  if ($latest_draft && !user_is_logged_in()) {
+    // don't allow anonyous users to request drafts
+    drupal_access_denied();
+    drupal_exit();
+  }
+
+  $doc = _gcd_get_mugl_dom_expanded($id,$latest_draft);
   $doc->formatOutput = true;
 
   if ($doc == null) {
@@ -588,21 +611,38 @@ function _gcd_mugl_controller($id,$subelement) {
       drupal_exit();
   }
 
-  if ($subelement == "graphmugl") {
-    $domNodeList = $doc->getElementsByTagName("mugl");
-    if ($domNodeList->length < 1) {
-      // should really throw a 404, or 500, here
-      header("Content-type: application/xml");
-      print("<error>mugl not found</error>\n");
-      drupal_exit();
-    }
-    $muglNode = $domNodeList->item(0);
-    header("Content-type: application/xml");
-    print _gcd_to_xml($muglNode) . "\n";
+  print $doc->saveXML() . "\n";
+  drupal_exit();
+}
+
+function _gcd_mugl_controller($id,$draft) {
+  $latest_draft = ($draft == "draft");
+
+  if ($latest_draft && !user_is_logged_in()) {
+    // don't allow anonyous users to request drafts
+    drupal_access_denied();
     drupal_exit();
   }
 
-  print $doc->saveXML() . "\n";
+  $doc = _gcd_get_mugl_dom_expanded($id,$latest_draft);
+  $doc->formatOutput = true;
+
+  if ($doc == null) {
+    header("Content-type: application/xml");
+    print('<error>mugl not found</error>');
+    drupal_exit();
+  }
+
+  $domNodeList = $doc->getElementsByTagName("mugl");
+  if ($domNodeList->length < 1) {
+    // should really throw a 404, or 500, here
+    header("Content-type: application/xml");
+    print("<error>mugl not found</error>\n");
+    drupal_exit();
+  }
+  $muglNode = $domNodeList->item(0);
+  header("Content-type: application/xml");
+  print _gcd_to_xml($muglNode) . "\n";
   drupal_exit();
 }
 
@@ -662,20 +702,51 @@ function dnl2array($domNodeList) {
  * Take a MUGL Id string $id, and return a string containing the gcd_mugl_xmltext field
  * value of the gcd_mugl node whose gcd_mugl_id field equals $id.  Returns null if there
  * is no gcd_mugl node with the given $id.
+ *
+ * If the optional 2nd argument is `true`, then return the mugl for the node's latest draft.
+ * Without that arguemtn, or if `false` is passed as the 2nd arg, returns the value corresponding
+ * to the pulished version.
  */
-function _gcd_get_mugl($id) {
-  $query = db_select('field_data_gcd_mugl_xmltext',  'v');
-  $query->join('field_data_gcd_mugl_id', 'i', 'i.entity_id=v.entity_id');
+function _gcd_get_mugl($id,$latest_draft=false) {
+  if ($latest_draft) {
+    // fetch latest draft from `revision` tables
+    $xmltext_table = 'field_revision_gcd_mugl_xmltext';
+    $id_table = 'field_revision_gcd_mugl_id';
+  } else {
+    // fetch published copy from `data` tables
+    $xmltext_table = 'field_data_gcd_mugl_xmltext';
+    $id_table = 'field_data_gcd_mugl_id';
+  }
+  $query = db_select($xmltext_table,  'v');
+  $query->join($id_table, 'i', 'i.entity_id=v.entity_id');
   $query->fields('v', array('gcd_mugl_xmltext_value'));
   $query->condition('i.gcd_mugl_id_value', $id);
+  // if fetching latest draft, fetch only 1st result in decreasing revision id order
+  if ($latest_draft) {
+    $query->orderBy('v.revision_id', 'DESC');
+    $query->range(0,1);
+  }
   return $query->execute()->fetchField();
 }
 
-function _gcd_get_data($id) {
-  $query = db_select('field_data_gcd_data_csvtext',  'd');
-  $query->join('field_data_gcd_data_id', 'i', 'i.entity_id=d.entity_id');
+function _gcd_get_data($id,$latest_draft=false) {
+  if ($latest_draft) {
+    // fetch latest draft from `revision` tables
+    $csvtext_table = 'field_revision_gcd_data_csvtext';
+    $id_table = 'field_revision_gcd_data_id';
+  } else {
+    // fetch published copy from `data` tables
+    $csvtext_table = 'field_data_gcd_data_csvtext';
+    $id_table = 'field_data_gcd_data_id';
+  }
+  $query = db_select($csvtext_table,  'd');
+  $query->join($id_table, 'i', 'i.entity_id=d.entity_id');
   $query->fields('d', array('gcd_data_csvtext_value'));
   $query->condition('i.gcd_data_id_value', $id);
+  if ($latest_draft) {
+    $query->orderBy('d.revision_id', 'DESC');
+    $query->range(0,1);
+  }
   $data = $query->execute()->fetchField();
   // Remove control-M characters at EOL; somehow they creep in, either
   // because Drupal or MySQL is inserting them, perhaps due to some
@@ -684,8 +755,8 @@ function _gcd_get_data($id) {
   return str_ireplace("\x0D", "", $data);
 }
 
-function _gcd_get_mugl_dom($id) {
-  $mugl = _gcd_get_mugl($id);
+function _gcd_get_mugl_dom($id,$latest_draft=false) {
+  $mugl = _gcd_get_mugl($id,$latest_draft);
   if ($mugl == null) { return null; }
   $doc = new DOMDocument();
   $doc->preserveWhiteSpace = false;
@@ -693,8 +764,8 @@ function _gcd_get_mugl_dom($id) {
   return $doc;
 }
 
-function _gcd_get_mugl_dom_expanded($id) {
-  $doc = _gcd_get_mugl_dom($id);
+function _gcd_get_mugl_dom_expanded($id,$latest_draft=false) {
+  $doc = _gcd_get_mugl_dom($id,$latest_draft);
 
   if ($doc != null) {
     $doc->documentElement->setAttribute("id", $id); // add the 'id' attribute
@@ -724,12 +795,12 @@ function _gcd_get_mugl_dom_expanded($id) {
       $type = $refElements[$i]['type'];
       $id = $e->getAttribute("id");
       if ($type == "dataValues") {
-        $data = _gcd_get_data($id);
+        $data = _gcd_get_data($id,$latest_draft);
         $childRoot = $doc->createElement("values");
         $childRoot->appendChild($doc->createTextNode("\n".$data));
         $childRoot->setAttribute("id", $id);
       } else {
-        $childDoc = _gcd_get_mugl_dom_expanded($id);
+        $childDoc = _gcd_get_mugl_dom_expanded($id,$latest_draft);
         $childRoot = $childDoc->documentElement;
       }
       $parentElement = $e->parentNode;
