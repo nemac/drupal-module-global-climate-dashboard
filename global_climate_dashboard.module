@@ -25,10 +25,6 @@ function global_climate_dashboard_block_info() {
     array(
           'info' => t('Global Climate Dashboard'),
           );
-  $blocks['global_climate_dashboard_preview'] =
-    array(
-          'info' => t('Global Climate Dashboard Preview'),
-          );
   return $blocks;
 }
 
@@ -118,7 +114,6 @@ function global_climate_dashboard_block_save($delta ='', $edit = array()) {
 function global_climate_dashboard_block_view($delta = '') {
   switch($delta) {
   case 'global_climate_dashboard':
-  case 'global_climate_dashboard_preview':
     $block['content'] = global_climate_dashboard_contents($delta);	
     return $block;
     break;
@@ -129,11 +124,8 @@ function global_climate_dashboard_block_view($delta = '') {
 /*
  * Custom function to render the dashboard html
  */
-function global_climate_dashboard_contents($delta) {
-  $preview = false;
+function global_climate_dashboard_contents($delta, $preview=false) {
   switch($delta) {
-  case 'global_climate_dashboard_preview':
-    $preview = true;
   case 'global_climate_dashboard':
     drupal_add_css(drupal_get_path('module', 'global_climate_dashboard') . "/global_climate_dashboard.css");
     drupal_add_css(drupal_get_path('module', 'global_climate_dashboard') . "/html5-app/dashboard.css");
@@ -141,10 +133,17 @@ function global_climate_dashboard_contents($delta) {
 
     $width           = variable_get('global_climate_dashboard_width');
     $height          = variable_get('global_climate_dashboard_height');
-    $config_path     = variable_get('global_climate_dashboard_config_path') . ($preview ? "/draft" : "");
+    $config_path     = variable_get('global_climate_dashboard_config_path');
     $assets_path     = variable_get('global_climate_dashboard_assets_path');
     $swf_path        = variable_get('global_climate_dashboard_swf_path');
-    $swf_config_path = variable_get('global_climate_dashboard_swf_config_path')  . ($preview ? "/draft" : "");
+    $swf_config_path = variable_get('global_climate_dashboard_swf_config_path');
+
+    if ($preview) {
+      $config_path     = preg_replace('|gcd/dashboard|', 'gcd/dashboard-preview', $config_path);
+      $config_path     = preg_replace('|gcd/mugl|',      'gcd/mugl-preview',      $config_path);
+      $swf_config_path = preg_replace('|gcd/dashboard|', 'gcd/dashboard-preview', $swf_config_path);
+      $swf_config_path = preg_replace('|gcd/mugl|',      'gcd/mugl-preview',      $swf_config_path);
+    }
 
     if (strpos($swf_path, '://') === false) {
       // if the swf_path is not an absolute url, prepend the drupal base path to it:
@@ -579,17 +578,32 @@ function global_climate_dashboard_menu() {
     'type' => MENU_CALLBACK,
     'title' => 'Callback Only',
     'page callback' => '_gcd_mugl_controller',
-    'page arguments' => array(2,3),
+    'page arguments' => array(2),
     'access callback' => TRUE,
   );
   $items['gcd/dashboard'] = array(
     'type' => MENU_CALLBACK,
     'title' => 'Callback Only',
     'page callback' => '_gcd_dashboard_controller',
-    'page arguments' => array(2,3),
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+  );
+  $items['gcd/mugl-preview'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => 'Callback Only',
+    'page callback' => '_gcd_mugl_preview_controller',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+  );
+  $items['gcd/dashboard-preview'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => 'Callback Only',
+    'page callback' => '_gcd_dashboard_preview_controller',
+    'page arguments' => array(2),
     'access callback' => TRUE,
   );
   $items['gcd/preview'] = array(
+    'type' => MENU_CALLBACK,
     'title' => 'Dashboard Preview',
     'page callback' => '_gcd_dashboard_preview',
     'access callback' => TRUE,
@@ -599,21 +613,32 @@ function global_climate_dashboard_menu() {
 }
 
 function _gcd_dashboard_preview() {
-  $dashboard_render_array = global_climate_dashboard_contents("global_climate_dashboard_preview");
+  if (!user_is_logged_in()) {
+    // don't allow anonyous users to view the preview page
+    drupal_access_denied();
+    drupal_exit();
+  }
+  $dashboard_render_array = global_climate_dashboard_contents("global_climate_dashboard", true);
   return array('#markup' => '<p>The dashboard on this page uses the most recent draft of all dashboard data sets and MUGLs; it serves as a preview of what the dashboard will look like once those drafts are published.</p><br>' . $dashboard_render_array['#markup']);
 }
 
 
-function _gcd_dashboard_controller($id,$draft) {
-  $latest_draft = ($draft == "draft");
+function _gcd_dashboard_preview_controller($id) {
+  _gcd_dashboard_controller_with_optional_preview($id, $true);
+}
 
-  if ($latest_draft && !user_is_logged_in()) {
-    // don't allow anonyous users to request drafts
+function _gcd_dashboard_controller($id) {
+  _gcd_dashboard_controller_with_optional_preview($id, $false);
+}
+
+function _gcd_dashboard_controller_with_optional_preview($id,$preview=false) {
+  if ($preview && !user_is_logged_in()) {
+    // don't allow anonyous users to request preview
     drupal_access_denied();
     drupal_exit();
   }
 
-  $doc = _gcd_get_mugl_dom_expanded($id,$latest_draft);
+  $doc = _gcd_get_mugl_dom_expanded($id,$preview);
   $doc->formatOutput = true;
 
   if ($doc == null) {
@@ -626,16 +651,21 @@ function _gcd_dashboard_controller($id,$draft) {
   drupal_exit();
 }
 
-function _gcd_mugl_controller($id,$draft) {
-  $latest_draft = ($draft == "draft");
+function _gcd_mugl_preview_controller($id) {
+  _gcd_mugl_controller_with_optional_preview($id,true);
+}
+function _gcd_mugl_controller($id) {
+  _gcd_mugl_controller_with_optional_preview($id,false);
+}
 
-  if ($latest_draft && !user_is_logged_in()) {
-    // don't allow anonyous users to request drafts
+function _gcd_mugl_controller_with_optional_preview($id,$preview=false) {
+  if ($preview && !user_is_logged_in()) {
+    // don't allow anonyous users to request previews
     drupal_access_denied();
     drupal_exit();
   }
 
-  $doc = _gcd_get_mugl_dom_expanded($id,$latest_draft);
+  $doc = _gcd_get_mugl_dom_expanded($id,$preview);
   $doc->formatOutput = true;
 
   if ($doc == null) {
@@ -714,12 +744,12 @@ function dnl2array($domNodeList) {
  * value of the gcd_mugl node whose gcd_mugl_id field equals $id.  Returns null if there
  * is no gcd_mugl node with the given $id.
  *
- * If the optional 2nd argument is `true`, then return the mugl for the node's latest draft.
+ * If the optional 2nd argument is `true`, then return the mugl for the node's lates dtraft.
  * Without that arguemtn, or if `false` is passed as the 2nd arg, returns the value corresponding
  * to the pulished version.
  */
-function _gcd_get_mugl($id,$latest_draft=false) {
-  if ($latest_draft) {
+function _gcd_get_mugl($id,$preview=false) {
+  if ($preview) {
     // fetch latest draft from `revision` tables
     $xmltext_table = 'field_revision_gcd_mugl_xmltext';
     $id_table = 'field_revision_gcd_mugl_id';
@@ -733,15 +763,15 @@ function _gcd_get_mugl($id,$latest_draft=false) {
   $query->fields('v', array('gcd_mugl_xmltext_value'));
   $query->condition('i.gcd_mugl_id_value', $id);
   // if fetching latest draft, fetch only 1st result in decreasing revision id order
-  if ($latest_draft) {
+  if ($preview) {
     $query->orderBy('v.revision_id', 'DESC');
     $query->range(0,1);
   }
   return $query->execute()->fetchField();
 }
 
-function _gcd_get_data($id,$latest_draft=false) {
-  if ($latest_draft) {
+function _gcd_get_data($id,$preview=false) {
+  if ($preview) {
     // fetch latest draft from `revision` tables
     $csvtext_table = 'field_revision_gcd_data_csvtext';
     $id_table = 'field_revision_gcd_data_id';
@@ -754,7 +784,7 @@ function _gcd_get_data($id,$latest_draft=false) {
   $query->join($id_table, 'i', 'i.entity_id=d.entity_id');
   $query->fields('d', array('gcd_data_csvtext_value'));
   $query->condition('i.gcd_data_id_value', $id);
-  if ($latest_draft) {
+  if ($preview) {
     $query->orderBy('d.revision_id', 'DESC');
     $query->range(0,1);
   }
@@ -766,8 +796,8 @@ function _gcd_get_data($id,$latest_draft=false) {
   return str_ireplace("\x0D", "", $data);
 }
 
-function _gcd_get_mugl_dom($id,$latest_draft=false) {
-  $mugl = _gcd_get_mugl($id,$latest_draft);
+function _gcd_get_mugl_dom($id,$preview=false) {
+  $mugl = _gcd_get_mugl($id,$preview);
   if ($mugl == null) { return null; }
   $doc = new DOMDocument();
   $doc->preserveWhiteSpace = false;
@@ -775,8 +805,8 @@ function _gcd_get_mugl_dom($id,$latest_draft=false) {
   return $doc;
 }
 
-function _gcd_get_mugl_dom_expanded($id,$latest_draft=false) {
-  $doc = _gcd_get_mugl_dom($id,$latest_draft);
+function _gcd_get_mugl_dom_expanded($id,$preview=false) {
+  $doc = _gcd_get_mugl_dom($id,$preview);
 
   if ($doc != null) {
     $doc->documentElement->setAttribute("id", $id); // add the 'id' attribute
@@ -806,12 +836,12 @@ function _gcd_get_mugl_dom_expanded($id,$latest_draft=false) {
       $type = $refElements[$i]['type'];
       $id = $e->getAttribute("id");
       if ($type == "dataValues") {
-        $data = _gcd_get_data($id,$latest_draft);
+        $data = _gcd_get_data($id,$preview);
         $childRoot = $doc->createElement("values");
         $childRoot->appendChild($doc->createTextNode("\n".$data));
         $childRoot->setAttribute("id", $id);
       } else {
-        $childDoc = _gcd_get_mugl_dom_expanded($id,$latest_draft);
+        $childDoc = _gcd_get_mugl_dom_expanded($id,$preview);
         $childRoot = $childDoc->documentElement;
       }
       $parentElement = $e->parentNode;
