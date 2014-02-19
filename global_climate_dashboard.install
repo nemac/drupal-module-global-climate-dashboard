@@ -6,10 +6,10 @@
 function global_climate_dashboard_install() {
   variable_set('global_climate_dashboard_width',           "940");
   variable_set('global_climate_dashboard_height',          "570");
-  variable_set('global_climate_dashboard_config_path',     drupal_get_path('module', 'global_climate_dashboard') . "/html5-app/assets/dashboard.xml");
-  variable_set('global_climate_dashboard_assets_path',     drupal_get_path('module', 'global_climate_dashboard') . "/html5-app/assets");
-  variable_set('global_climate_dashboard_swf_path',        drupal_get_path('module', 'global_climate_dashboard') . "/html5-app/flash/Dashboard.swf");
-  variable_set('global_climate_dashboard_swf_config_path', drupal_get_path('module', 'global_climate_dashboard') . "/html5-app/flash/data/dashboard.xml");
+  variable_set('global_climate_dashboard_config_path',     "/" . drupal_get_path('module', 'global_climate_dashboard') . "/html5-app/assets/dashboard.xml");
+  variable_set('global_climate_dashboard_assets_path',     "/" . drupal_get_path('module', 'global_climate_dashboard') . "/html5-app/assets");
+  variable_set('global_climate_dashboard_swf_path',        "/" . drupal_get_path('module', 'global_climate_dashboard') . "/html5-app/flash/Dashboard.swf");
+  variable_set('global_climate_dashboard_swf_config_path', "/" . drupal_get_path('module', 'global_climate_dashboard') . "/html5-app/flash/data/dashboard.xml");
 }
 
 

@@ -1,20 +1,5 @@
 <?php
   /*
-   * The global_climate_dashboard module tests out setting up a block using the block API and
-   * rendering some content in the block using a renderable array.
-   */
-
-/**
- * Implements hook_init
- */
-  /* I think we can add css and js files when the block is viewed, rather than here
-function global_climate_dashboard_init() {
-  drupal_add_css(drupal_get_path('module', 'global_climate_dashboard') . "/global_climate_dashboard.css");
-  drupal_add_js(drupal_get_path('module', 'global_climate_dashboard') . "/swfobject.js");
-}
-  */
-
-  /*
    * Implements hook_block_info().
    */
 function global_climate_dashboard_block_info() {
@@ -122,7 +107,9 @@ function global_climate_dashboard_block_view($delta = '') {
 
 
 /*
- * Custom function to render the dashboard html
+ * Custom function to render the dashboard html.   If the optional 2nd argument is `true`, modify
+ * the path of the dashboard config file(s) to load versions which use the latest draft of all MUGLs
+ * and data sets, rather than the publishd versions.
  */
 function global_climate_dashboard_contents($delta, $preview=false) {
   switch($delta) {
@@ -139,10 +126,10 @@ function global_climate_dashboard_contents($delta, $preview=false) {
     $swf_config_path = variable_get('global_climate_dashboard_swf_config_path');
 
     if ($preview) {
-      $config_path     = preg_replace('|gcd/dashboard|', 'gcd/dashboard-preview', $config_path);
-      $config_path     = preg_replace('|gcd/mugl|',      'gcd/mugl-preview',      $config_path);
-      $swf_config_path = preg_replace('|gcd/dashboard|', 'gcd/dashboard-preview', $swf_config_path);
-      $swf_config_path = preg_replace('|gcd/mugl|',      'gcd/mugl-preview',      $swf_config_path);
+      $config_path     = preg_replace('|gcd/dashboard-config|', 'gcd/dashboard-config-preview', $config_path);
+      $config_path     = preg_replace('|gcd/multigraph-mugl|',      'gcd/multigraph-mugl-preview',      $config_path);
+      $swf_config_path = preg_replace('|gcd/dashboard-config|', 'gcd/dashboard-config-preview', $swf_config_path);
+      $swf_config_path = preg_replace('|gcd/multigraph-mugl|',      'gcd/multigraph-mugl-preview',      $swf_config_path);
     }
 
     if (strpos($swf_path, '://') === false) {
@@ -574,34 +561,54 @@ function global_climate_dashboard_node_access($node, $op, $account) {
  */
 function global_climate_dashboard_menu() {
 
-  $items['gcd/mugl'] = array(
-    'type' => MENU_CALLBACK,
-    'title' => 'Callback Only',
-    'page callback' => '_gcd_mugl_controller',
-    'page arguments' => array(2),
-    'access callback' => TRUE,
-  );
-  $items['gcd/dashboard'] = array(
+  // Service endpoint for delivering dashboard XML config documents; usage is like
+  //       http://www.example.com/gcd/dashboard-config/MUGL-ID
+  // where MUGL-ID is the unique id (gcd_mugl_id field) associated with a gcd_mugl
+  // node.  The controller returns the XML contents of the gcd_mugl node, with all
+  // references within that XML replaced with their contents.
+  $items['gcd/dashboard-config'] = array(
     'type' => MENU_CALLBACK,
     'title' => 'Callback Only',
     'page callback' => '_gcd_dashboard_controller',
     'page arguments' => array(2),
     'access callback' => TRUE,
   );
-  $items['gcd/mugl-preview'] = array(
+
+  // Similar to gcd/dashboard-config, but assumes that the gcd_mugl node referred to by
+  // the specified MUGL-ID corresponds to a <graph> element, and delivers only the contents
+  // of the <mugl> subdocument contained in that <graph> element.  The resulting XML is
+  // suitable for consumption by Multigraph, and can be used with the 'multigraph' filter
+  // to place a copy of a graph on an arbitrary page in the site.  Usage is like
+  //       http://www.example.com/gcd/multigraph-mugl/MUGL-ID
+  $items['gcd/multigraph-mugl'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => 'Callback Only',
+    'page callback' => '_gcd_mugl_controller',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+  );
+
+  // The following two paths behave exactly like the above two, except that they deliver a
+  // "preview" version of the XML, which means that they use the latest draft(s) of all MUGLs
+  // and data sets, rather than the latest pulished versions.
+  $items['gcd/multigraph-mugl-preview'] = array(
     'type' => MENU_CALLBACK,
     'title' => 'Callback Only',
     'page callback' => '_gcd_mugl_preview_controller',
     'page arguments' => array(2),
     'access callback' => TRUE,
   );
-  $items['gcd/dashboard-preview'] = array(
+  $items['gcd/dashboard-config-preview'] = array(
     'type' => MENU_CALLBACK,
     'title' => 'Callback Only',
     'page callback' => '_gcd_dashboard_preview_controller',
     'page arguments' => array(2),
     'access callback' => TRUE,
   );
+
+  // The following path renders a page containing a "preview" copy of the dashboard, which is
+  // exactly like the dashboard displayed in the global_climate_dashboard block, except that it
+  // uses "preview" (i.e. latest draft) versions of all MUGLs and data sets.
   $items['gcd/preview'] = array(
     'type' => MENU_CALLBACK,
     'title' => 'Dashboard Preview',
@@ -624,11 +631,11 @@ function _gcd_dashboard_preview() {
 
 
 function _gcd_dashboard_preview_controller($id) {
-  _gcd_dashboard_controller_with_optional_preview($id, $true);
+  _gcd_dashboard_controller_with_optional_preview($id, true);
 }
 
 function _gcd_dashboard_controller($id) {
-  _gcd_dashboard_controller_with_optional_preview($id, $false);
+  _gcd_dashboard_controller_with_optional_preview($id, false);
 }
 
 function _gcd_dashboard_controller_with_optional_preview($id,$preview=false) {
