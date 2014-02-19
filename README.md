@@ -18,27 +18,33 @@ This Drupal module does several things:
    and by Multigraph:
 
       * **Dashboard/Multigraph MUGL** (machine name **gcd_mugl**)
+      
         This content type stores XML documents that define the graphs, tabs, and overall structure of the contents of the dashboard.
 
       * **Dashboard/Multigraph Data** (machine name **gcd_data**)
+      
         This content type store the numerical data, in CSV format, displayed in the dashboard graphs.
 
 4. Defines the following REST services for serving out the above XML configuration documents
 
       * **gcd/dashboard-config/MUGL-ID**
+      
         Responds with the XML contents of the gcd_mugl node having the gcd_mugl_id field value of MUGL-ID, with
         all internal references to other gcd_mugl nodes replaced with their contents.
         
       * **gcd/multigraph-mugl/MUGL-ID**
+      
         Like the above, but assumes that the targeted gcd_mugl node represents a <graph> element, and
         responds with the contents of the <mugl> element contained within it; this is for use by the **multigraph**
         input filter mentioned above.
         
       * **gcd/dashboard-config-preview**
+      
         The same as gcd/dashboard-config/MUGL-ID, but returns the latest (possibly unpublished) draft copy, rather
         than the published version.
 
       * **gcd/multigraph-mugl-preview/MUGL-ID**
+      
         The same as gcd/multigraph-mugl/MUGL-ID, but returns the latest (possibly unpublished) draft copy, rather
         than the published version.
         
