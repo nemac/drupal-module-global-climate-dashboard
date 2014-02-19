@@ -127,7 +127,7 @@ function global_climate_dashboard_block_view($delta = '') {
 
 
 /*
- * Custom function to render the 'mugl' field.
+ * Custom function to render the dashboard html
  */
 function global_climate_dashboard_contents($delta) {
   $preview = false;
@@ -589,9 +589,20 @@ function global_climate_dashboard_menu() {
     'page arguments' => array(2,3),
     'access callback' => TRUE,
   );
+  $items['gcd/preview'] = array(
+    'title' => 'Dashboard Preview',
+    'page callback' => '_gcd_dashboard_preview',
+    'access callback' => TRUE,
+  );
 
   return $items;
 }
+
+function _gcd_dashboard_preview() {
+  $dashboard_render_array = global_climate_dashboard_contents("global_climate_dashboard_preview");
+  return array('#markup' => '<p>The dashboard on this page uses the most recent draft of all dashboard data sets and MUGLs; it serves as a preview of what the dashboard will look like once those drafts are published.</p><br>' . $dashboard_render_array['#markup']);
+}
+
 
 function _gcd_dashboard_controller($id,$draft) {
   $latest_draft = ($draft == "draft");
