@@ -116,7 +116,10 @@ function global_climate_dashboard_contents($delta, $preview=false) {
   case 'global_climate_dashboard':
     drupal_add_css(drupal_get_path('module', 'global_climate_dashboard') . "/global_climate_dashboard.css");
     drupal_add_css(drupal_get_path('module', 'global_climate_dashboard') . "/html5-app/dashboard.css");
+
+    drupal_add_js('window.dashboard_savedJQuery = jQuery;', 'inline');
     drupal_add_js(drupal_get_path('module', 'global_climate_dashboard') . "/html5-app/dashboard-min.js");
+    drupal_add_js('jQuery = window.dashboard_savedJQuery; $ = window.dashboard_savedJQuery;', 'inline');
 
     $width           = variable_get('global_climate_dashboard_width');
     $height          = variable_get('global_climate_dashboard_height');
@@ -185,7 +188,9 @@ function global_climate_dashboard_multigraph_filter_prepare($text, $filter, $for
 }
 
 function global_climate_dashboard_multigraph_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
+  drupal_add_js('window.dashboard_savedJQuery = jQuery;', 'inline');
   drupal_add_js(drupal_get_path('module', 'global_climate_dashboard') . "/html5-app/multigraph-min.js");
+  drupal_add_js('jQuery = window.dashboard_savedJQuery; $ = window.dashboard_savedJQuery;', 'inline');
   $text = preg_replace_callback('|\[\s*multigraph(.+?)\s*\]|', '_multigraph_edit_tag', $text);
   return $text;
 }
