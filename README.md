@@ -75,3 +75,25 @@ Installation
    * Set *Dashboard config path for flash fallback version* to `/gcd/dashboard/flash-dashboard`
   
 5. Edit the **gcd_mugl** and **gcd_data** content types to enable workbench moderation for them
+
+
+Rebuilding
+----------
+
+You do not need to rebuild the Global Climate Dashboard application in order
+to use this module; the module comes with a
+compiled and production-ready copy of the dashboard
+app in the "html5-app" subdirectory.
+
+You can, however, use the included [Ant](ant.apache.org) `build.xml`
+file to rebuild the app from source (located in the
+submodules/global-climate-dashboard directory) and replace the copy in
+the html5-app directory with the newly built copy.
+
+Before doing that, you'll need to run the command
+
+```
+git submodule update --init --recursive
+```
+
+to download all the project dependencies. Then run `ant build` to perform the rebuild.

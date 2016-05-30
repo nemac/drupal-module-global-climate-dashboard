@@ -1,3 +1,3 @@
-[submodule "submodules/html5-global-climate-dashboard"]
-	path = submodules/html5-global-climate-dashboard
-	url = https://github.com/nemac/html5-global-climate-dashboard.git
+[submodule "submodules/global-climate-dashboard"]
+	path = submodules/global-climate-dashboard
+	url = https://github.com/nemac/global-climate-dashboard.git
